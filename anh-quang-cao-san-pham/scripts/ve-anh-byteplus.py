@@ -1,5 +1,6 @@
 # Vẽ 1 ảnh bằng Seedream qua BytePlus ModelArk (200 ảnh miễn phí Seedream 4.5 mỗi tài khoản, hết thì trả tiền ~0,04 USD/ảnh).
-# Khoá đọc theo thứ tự: biến ARK_API_KEY → tệp ~/.config/anh-qc/byteplus.key → (Mac) Keychain byteplus-ark-claude-thu-anh. KHÔNG in khoá.
+# Khoá đọc theo thứ tự: biến ARK_API_KEY → kho khoá hệ điều hành (keyring, service anh-qc, tên byteplus) → tệp cũ ~/.config/anh-qc/byteplus.key
+# (chỉ đọc) → (Mac) Keychain cũ byteplus-ark-claude-thu-anh. KHÔNG in khoá. Ghi khoá: kiem-cong-cu-ve.py --nhap-khoa byteplus.
 # Ảnh mẫu xoay đúng chiều + thu nhỏ cạnh dài ≤1536px (JPEG 90) trước khi gửi. Trần tiền/ngày cộng ở 1 sổ chung ~/.config/anh-qc/so-chi-byteplus.jsonl
 # (mọi thư mục dự án), vượt --tran-usd thì từ chối. Ảnh lưu ĐÚNG tên --ra (đổi định dạng nếu cần).
 # Lỗi → in "LỖI …", thoát mã 1. Đo 15/11/2026: Seedream 4.5 ~30–60 giây/ảnh; hay vẽ SAI SỐ trên nhãn (336 g → 136 g) → luôn soát chữ.
@@ -30,15 +31,21 @@ if len(a.mau) > 3: sys.exit('Tối đa 3 ảnh mẫu.')
 
 def lay_khoa():
     k = os.environ.get('ARK_API_KEY', '').strip()
-    tep = os.path.expanduser('~/.config/anh-qc/byteplus.key')
-    if not k and os.path.exists(tep): k = open(tep, encoding='utf-8-sig').read().strip()  # Notepad có thể lưu kèm BOM
+    if not k:
+        try:
+            import keyring  # kho khoá của hệ điều hành (Mac Keychain / Windows Credential Manager)
+            k = (keyring.get_password('anh-qc', 'byteplus') or '').strip()
+        except Exception:  # chưa cài keyring hoặc máy không có kho khoá ⇒ thử chỗ lưu của bản cũ
+            k = ''
+    tep = os.path.expanduser('~/.config/anh-qc/byteplus.key')  # chỗ lưu của bản cũ: chỉ đọc
+    if not k and os.path.exists(tep): k = open(tep, encoding='utf-8-sig').read().strip()
     if not k and sys.platform == 'darwin':
         k = subprocess.run(['security', 'find-generic-password', '-s', 'byteplus-ark-claude-thu-anh', '-w'],
                            capture_output=True, text=True).stdout.strip()
     return k if len(k) >= 20 else ''
 
 khoa = lay_khoa()
-if not khoa: sys.exit('LỖI chưa có khoá BytePlus (đặt ARK_API_KEY hoặc tệp ~/.config/anh-qc/byteplus.key).')
+if not khoa: sys.exit('LỖI chưa có khoá BytePlus (chạy kiem-cong-cu-ve.py --nhap-khoa byteplus, hoặc đặt ARK_API_KEY).')
 usd = 0.036 if a.model.startswith('seedream-5') else 0.04  # giá niêm yết / ảnh (4.5 = 0,04 · 5.5 ≈ 0,036)
 os.makedirs(os.path.dirname(os.path.abspath(a.ra)) or '.', exist_ok=True)
 so = os.path.join(os.path.dirname(os.path.abspath(a.ra)), 'so-chi.jsonl')  # sổ của dự án (để xem lại)

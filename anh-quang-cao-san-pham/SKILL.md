@@ -32,8 +32,16 @@ metadata:
    Bán cho ai? Chưa nói → Agent tự suy từ trang hãng, ghi 1 dòng chân dung khách (ai, tuổi, đang lo gì khi mua) để bạn sửa — dùng ở Bước 7b.
 4. Thông điệp / chữ muốn đặt? Chưa có → Agent đề xuất từ sự thật trên trang hãng, bạn duyệt trước khi đặt.
 5. **Chọn công cụ vẽ: người dùng chọn, Agent lo cài.** Chạy `python3 scripts/kiem-cong-cu-ve.py`, đưa NGUYÊN bảng nó in (xếp sẵn theo thứ tự nên dùng) kèm 1 câu gợi ý, rồi hỏi: "Bạn muốn vẽ bằng công cụ nào?". KHÔNG mặc định đường trả tiền, KHÔNG bắt ai phải trả thêm.
-   Chọn công cụ chưa sẵn sàng → Agent TỰ chạy hết các dòng "Agent chạy" máy kiểm in ra (lệnh mở trình duyệt / chờ người bấm thì chạy nền), chỉ dừng chờ ở dòng "Bạn làm" (bấm đăng nhập / cho phép, gõ mật khẩu máy, bấm Cài đặt, dán khoá vào ô kín). Chạy lại máy kiểm, thấy ✅ mới vẽ. Mac mới tinh: `python3` báo thiếu công cụ dành cho nhà phát triển → chạy `xcode-select --install`, người dùng bấm "Cài đặt", xong chạy lại máy kiểm.
-   **Windows:** gõ `python scripts\kiem-cong-cu-ve.py` (lệnh in ra là PowerShell; bước nào cần hộp xin quyền, máy ghi "Bạn làm: bấm Yes"). Windows luôn có Edge nên không cần cài Chrome.
+   Chọn công cụ chưa sẵn sàng → **Agent KHÔNG tự cài.** Cho người dùng xem danh sách sẽ cài (tên + nguồn chính thức + bản ghim, lấy từ các dòng "Agent chạy" máy kiểm in ra; bảng "Cài gì, từ đâu" ở dưới), hỏi 1 câu "Bạn đồng ý cài những thứ này không?". Đồng ý rồi mới chạy các dòng "Agent chạy" (lệnh mở trình duyệt / chờ người bấm thì chạy nền); chưa đồng ý hoặc từ chối món nào thì bỏ món đó. Dòng "Bạn làm" (bấm đăng nhập / cho phép, tải + cài Chrome / Node / Antigravity ở trang chính thức, dán khoá vào hộp kín) vẫn chờ người dùng. Chạy lại máy kiểm, thấy ✅ mới vẽ. Mac mới tinh: `python3` báo thiếu công cụ dành cho nhà phát triển → hỏi đồng ý rồi chạy `xcode-select --install`, người dùng bấm "Cài đặt", xong chạy lại máy kiểm.
+   **Windows:** gõ `python scripts\kiem-cong-cu-ve.py` (lệnh in ra là PowerShell; bước nào cần hộp xin quyền, máy ghi "Bạn làm: bấm Yes"). Windows luôn có Edge nên không cần cài Chrome. Nhập khoá = hộp nhập kín của Windows (không Notepad, không tệp chữ).
+
+| Cài gì | Nguồn chính thức | Bản |
+|---|---|---|
+| uv (trình cài Python) | github.com/astral-sh/uv releases, máy tự đối chiếu SHA-256 viết cứng | 0.13.8 |
+| Python 3.12 riêng + thư viện | uv tải Python; thư viện từ PyPI, khoá bằng mã băm (`scripts/khoa-thu-vien.txt`) | 3.12, ghim từng gói |
+| Codex (gói ChatGPT) | npm `@openai/codex` (cần Node) | 0.169.0 |
+| wrangler (Cloudflare) | npm `wrangler` chạy qua `npx` | 4.162.0 |
+| Node · Chrome · Antigravity | người dùng tự tải ở nodejs.org · google.com/chrome · antigravity.google/download (Windows: Node + Chrome qua `winget`) | bản LTS / mới nhất |
 
 **Thứ tự: dùng thứ bạn ĐANG TRẢ trước, rồi mới tới API, cuối cùng mới tới công cụ chuyên nghiệp.**
 
@@ -52,12 +60,12 @@ Gợi ý: có gói ChatGPT → đường đó. Có gói Gemini → Antigravity (
 
 Dữ liệu gửi ra ngoài: ảnh hãng + lời nhờ đi sang OpenAI (gói ChatGPT), Google (gói Gemini, Gemini API), ByteDance/BytePlus (Seedream), Cloudflare, hoặc công cụ tầng 3; **Claude tự dựng bằng code không gửi ảnh đi đâu**. Nói rõ; KHÔNG dùng ảnh mật, sản phẩm chưa công bố. Khoá/token: KHÔNG bảo người dùng dán vào chat, KHÔNG in ra.
 
-**Cài + nối:** máy kiểm in sẵn lệnh cho từng đường (môi trường Python riêng `~/.venv-anh-qc` khoá phiên bản, Chrome hoặc Edge để đặt chữ, Codex, Antigravity, công cụ dòng lệnh Apple, wrangler, thư viện Gemini). Chạy máy bằng `~/.venv-anh-qc/bin/python scripts/<máy>.py …`. **Lệnh `python` trong mọi hướng dẫn dưới đây = Python riêng mà `kiem-cong-cu-ve.py` in ra** (Mac `~/.venv-anh-qc/bin/python`; Windows `%USERPROFILE%\.venv-anh-qc\Scripts\python.exe`).
+**Cài + nối** (chỉ sau khi người dùng đồng ý, Bước 0): máy kiểm in sẵn lệnh cho từng đường (môi trường Python riêng `~/.venv-anh-qc` khoá bằng mã băm, Chrome hoặc Edge để đặt chữ, Codex, Antigravity, công cụ dòng lệnh Apple, wrangler, thư viện Gemini); không có lệnh nào kiểu tải rồi chạy ngay. Chạy máy bằng `~/.venv-anh-qc/bin/python scripts/<máy>.py …`. **Lệnh `python` trong mọi hướng dẫn dưới đây = Python riêng mà `kiem-cong-cu-ve.py` in ra** (Mac `~/.venv-anh-qc/bin/python`; Windows `%USERPROFILE%\.venv-anh-qc\Scripts\python.exe`).
 - **Gói ChatGPT:** máy vẽ tự từ chối khi Codex đăng nhập bằng khoá API (OpenAI sẽ tính tiền từng ảnh) — đăng nhập lại bằng tài khoản ChatGPT.
-- **Gói Gemini:** chưa có `agy` → máy kiểm mở trang tải Antigravity; người dùng cài, đăng nhập tài khoản Google có gói, bật công cụ dòng lệnh theo hướng dẫn trong ứng dụng (chưa thử trên máy mới tinh).
-- **Seedream (BytePlus):** người dùng đăng ký console.byteplus.com, BẬT "Free Credits Only Mode" trước, thêm thẻ/PayPal, Activate dòng Seedream 4.5, tạo khoá ở trang API Key → Agent chạy `kiem-cong-cu-ve.py --nhap-khoa byteplus` (ô kín). Thẻ/PayPal là việc của người dùng, Agent không nhập.
-- **Cloudflare, bật cổng vẽ** (chạy nền suốt phiên): `npx wrangler dev --cwd scripts/cong-cloudflare-ai --port 8841 --ip 127.0.0.1` → thấy "Ready" là xong. Lần đầu → `npx wrangler login`. Nhiều account → thêm `account_id` vào `scripts/cong-cloudflare-ai/wrangler.toml`. Không dùng được wrangler → token mẫu "Workers AI", người dùng tự đặt `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN`, bỏ `--cong`.
-- **Gemini API trả tiền:** `kiem-cong-cu-ve.py --nhap-khoa gemini` (ô kín), máy vẽ đọc `~/.config/anh-qc/gemini.key`.
+- **Gói Gemini:** chưa có `agy` → máy kiểm mở trang tải Antigravity (antigravity.google/download), cả Mac lẫn Windows; người dùng tải, cài, đăng nhập tài khoản Google có gói, bật công cụ dòng lệnh theo hướng dẫn trong ứng dụng (chưa thử trên máy mới tinh).
+- **Seedream (BytePlus):** người dùng đăng ký console.byteplus.com, BẬT "Free Credits Only Mode" trước, thêm thẻ/PayPal, Activate dòng Seedream 4.5, tạo khoá ở trang API Key → Agent chạy `kiem-cong-cu-ve.py --nhap-khoa byteplus` bằng Python riêng (hộp nhập kín; khoá vào Keychain Mac / Credential Manager Windows). Thẻ/PayPal là việc của người dùng, Agent không nhập.
+- **Cloudflare, bật cổng vẽ** (chạy nền suốt phiên): `npx --yes wrangler@4.162.0 dev --cwd scripts/cong-cloudflare-ai --port 8841 --ip 127.0.0.1` (Windows `npx.cmd`) → thấy "Ready" là xong. Lần đầu → `npx --yes wrangler@4.162.0 login`. Nhiều account → thêm `account_id` vào `scripts/cong-cloudflare-ai/wrangler.toml`. Không dùng được wrangler → token mẫu "Workers AI", người dùng tự đặt `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN`, bỏ `--cong`.
+- **Gemini API trả tiền:** `kiem-cong-cu-ve.py --nhap-khoa gemini` bằng Python riêng (hộp nhập kín); máy vẽ đọc khoá từ biến môi trường → kho khoá hệ điều hành → tệp cũ `~/.config/anh-qc/gemini.key` (chỉ đọc, cho người dùng bản cũ).
 
 ## Thư mục làm việc
 ```

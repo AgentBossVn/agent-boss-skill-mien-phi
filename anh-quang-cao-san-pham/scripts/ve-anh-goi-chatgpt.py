@@ -23,14 +23,14 @@ ap.add_argument('--model', default='')
 ap.add_argument('--cho', type=int, default=600, help='giây chờ tối đa')
 a = ap.parse_args()
 if len(a.mau) > 4: sys.exit('Tối đa 4 ảnh mẫu.')
-codex = shutil.which('codex') or next((p for p in ('/opt/homebrew/bin/codex',
+codex = shutil.which('codex') or next((p for p in (os.path.expanduser('~/.local/bin/codex'), '/opt/homebrew/bin/codex',
          os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Programs', 'OpenAI', 'Codex', 'bin', 'codex.exe'),
          os.path.join(os.environ.get('APPDATA', ''), 'npm', 'codex.cmd')) if os.path.exists(p)), '/opt/homebrew/bin/codex')
-if not os.path.exists(codex): sys.exit('THIẾU Codex CLI: cài `npm i -g @openai/codex` rồi `codex login` bằng tài khoản ChatGPT.')
+if not os.path.exists(codex): sys.exit('THIẾU Codex CLI: chạy kiem-cong-cu-ve.py, cài Codex theo dòng nó in (bản ghim), rồi `codex login` bằng tài khoản ChatGPT.')
 kho = os.path.join(os.path.expanduser(os.environ.get('CODEX_HOME') or '~/.codex'), 'generated_images')
 # Biến CODEX_API_KEY / OPENAI_API_KEY làm Codex vẽ bằng khoá API (TÍNH TIỀN) dù `login status` báo ChatGPT ⇒ bỏ khỏi môi trường gọi Codex
 MOI_TRUONG = {k: v for k, v in os.environ.items() if k not in ('CODEX_API_KEY', 'OPENAI_API_KEY')}
-if sys.platform != 'win32': MOI_TRUONG['PATH'] = '/opt/homebrew/bin:/usr/local/bin:' + os.environ.get('PATH', '')
+if sys.platform != 'win32': MOI_TRUONG['PATH'] = '/opt/homebrew/bin:/usr/local/bin:' + os.path.expanduser('~/.local/bin') + ':' + os.environ.get('PATH', '')
 try:  # đăng nhập bằng khoá API thì OpenAI TÍNH TIỀN từng ảnh ⇒ chỉ vẽ khi Codex đăng nhập bằng tài khoản ChatGPT
     dn = subprocess.run([codex, 'login', 'status'], capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=30, stdin=subprocess.DEVNULL, env=MOI_TRUONG)
     dn = dn.stdout + dn.stderr

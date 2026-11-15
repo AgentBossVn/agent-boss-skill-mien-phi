@@ -1,7 +1,7 @@
 # Vẽ 1 ảnh TRẢ TIỀN bằng Gemini (mặc định Nano Banana 2.1, ~0,05 USD/ảnh 2K), kèm NHIỀU ảnh mẫu chính hãng.
 # Muốn 0đ: dùng ve-anh-mien-phi.py (Cloudflare Workers AI). Máy đắt gemini-3-pro-image chỉ khi cần giữ logo/chữ nhỏ.
-# Khoá: biến môi trường GEMINI_API_KEY (hoặc GOOGLE_API_KEY), không có thì đọc ~/.config/anh-qc/gemini.key
-# (tệp do `kiem-cong-cu-ve.py --nhap-khoa` ghi qua ô kín). Máy KHÔNG in khoá ra.
+# Khoá đọc theo thứ tự: biến GEMINI_API_KEY (hoặc GOOGLE_API_KEY) → kho khoá hệ điều hành (keyring, service anh-qc, tên gemini;
+# do `kiem-cong-cu-ve.py --nhap-khoa gemini` ghi qua ô kín) → tệp cũ ~/.config/anh-qc/gemini.key (chỉ đọc). Máy KHÔNG in khoá ra.
 # Có trần tiền: cộng sổ chi trong thư mục ảnh ra, chạm --tran-usd thì dừng, không vẽ.
 # Cài 1 lần: xem dòng "Cài 1 lần" trong SKILL.md (môi trường riêng, khoá phiên bản).
 # Chạy:  python ve-anh-nhieu-mau.py --loi-nho loi-nho.txt --mau a.jpg b.jpg --ti-le 4:5 --co 2K --ra ve/canh-1-a.png
@@ -39,11 +39,17 @@ if da_tieu + GIA[a.co] > a.tran_usd:
     sys.exit(f'DỪNG: đã tiêu {da_tieu:.2f} USD, vẽ thêm sẽ quá trần {a.tran_usd} USD. Hỏi người dùng nâng trần (--tran-usd).')
 
 khoa = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')
-tep_khoa = os.path.expanduser('~/.config/anh-qc/gemini.key')
+if not khoa:
+    try:
+        import keyring  # kho khoá của hệ điều hành (Mac Keychain / Windows Credential Manager)
+        khoa = keyring.get_password('anh-qc', 'gemini')
+    except Exception:  # chưa cài keyring hoặc máy không có kho khoá ⇒ thử chỗ lưu của bản cũ
+        khoa = None
+tep_khoa = os.path.expanduser('~/.config/anh-qc/gemini.key')  # chỗ lưu của bản cũ: chỉ đọc
 if not khoa and os.path.exists(tep_khoa):
     with open(tep_khoa, encoding='utf-8-sig') as f: khoa = f.read()
 if not khoa:
-    sys.exit('THIẾU KHOÁ: chạy `python3 scripts/kiem-cong-cu-ve.py --nhap-khoa` để người dùng dán khoá vào ô kín (lấy ở aistudio.google.com/apikey). Không dán khoá vào chat.')
+    sys.exit('THIẾU KHOÁ: chạy `kiem-cong-cu-ve.py --nhap-khoa gemini` bằng Python riêng của skill để người dùng dán khoá vào ô kín (lấy ở aistudio.google.com/apikey). Không dán khoá vào chat.')
 khoa = khoa.strip()
 if not re.fullmatch(r'[\x21-\x7e]{20,200}', khoa):  # khoá thật không có dấu cách; chuỗi lỗi bị nạp nhầm thì có
     sys.exit('KHOÁ KHÔNG HỢP LỆ: biến khoá có dấu cách / quá ngắn — có thể đã nạp nhầm 1 dòng báo lỗi. Kiểm lại cách nạp khoá.')

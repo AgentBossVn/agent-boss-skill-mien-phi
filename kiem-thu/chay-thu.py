@@ -65,6 +65,34 @@ def giai_doan_1():
     khang_dinh(len(hang) == 8, f'bảng có Máy nền + 7 dòng công cụ (thấy {len(hang)})', ra)
     if WIN: khang_dinh('export PATH' not in ra and 'brew' not in ra and '$env:' in ra, 'Windows: lệnh in ra là PowerShell (không export PATH, không brew)', ra)
     else: khang_dinh('$env:' not in ra and 'Start-Process' not in ra, 'Mac: lệnh in ra không lẫn PowerShell', ra)
+    cam = re.findall(r'\|\s*(?:sh|bash|iex)\b|curl -|@latest|brew install|Notepad', ra)
+    khang_dinh(not cam, f'không dòng lệnh nào tải-rồi-chạy-ngay / @latest / brew install / Notepad (thấy: {cam})', ra)
+    khang_dinh('--require-hashes' in ra and 'khoa-thu-vien.txt' in ra, 'lệnh cài thư viện dùng --require-hashes + khoa-thu-vien.txt', ra)
+    khang_dinh(not re.findall(r'@openai/codex(?!@\d)|wrangler(?!@\d)(?= (?:dev|login))', ra), 'Codex và wrangler (nếu in ra) đều có bản ghim', ra)
+
+    tieu_de('2a. --cai-uv: tải THẬT 1 bản uv ghim, đối chiếu SHA-256 thật (HOME riêng)')
+    home_uv = TAM / 'home-uv'; home_uv.mkdir()
+    env_uv = moi_truong(home_uv)
+    ma, ra_uv = chay([sys.executable, SCRIPTS / 'kiem-cong-cu-ve.py', '--cai-uv'], env_uv)
+    khang_dinh(ma == 0 and 'Đã khớp SHA-256' in ra_uv, '--cai-uv chạy xong, báo đã khớp SHA-256', ra_uv)
+    uv_moi = home_uv / '.local' / 'bin' / ('uv.exe' if WIN else 'uv')
+    khang_dinh(uv_moi.exists(), f'uv nằm ở {uv_moi}')
+    if uv_moi.exists():
+        ma, ra_ver = chay([uv_moi, '--version'], env_uv)
+        khang_dinh(ma == 0 and '0.13.8' in ra_ver, 'uv vừa cài chạy được, đúng bản 0.13.8', ra_ver)
+    (TAM / 'gia').mkdir(exist_ok=True)
+    gia_sai = TAM / 'gia' / 'cai-uv-sai-ma.py'
+    gia_sai.write_text('''import io, runpy, sys, urllib.request
+class _R(io.BytesIO):
+    def __enter__(self): return self
+    def __exit__(self, *a): return False
+urllib.request.urlopen = lambda *a, **k: _R(b'khong-phai-uv')
+sys.argv = [sys.argv[1], '--cai-uv']
+runpy.run_path(sys.argv[0], run_name='__main__')
+''', encoding='utf-8')
+    ma, ra_sai = chay([sys.executable, gia_sai, SCRIPTS / 'kiem-cong-cu-ve.py'], moi_truong(TAM / 'home-uv-sai'))
+    khang_dinh(ma != 0 and 'SHA-256 không khớp' in ra_sai and not (TAM / 'home-uv-sai' / '.local').exists(),
+               'tải về sai nội dung → báo "SHA-256 không khớp", KHÔNG cài gì', ra_sai)
     lenh, dang = [], False  # lệnh "Agent chạy" dưới mục **Máy nền …**
     for dong in ra.splitlines():
         if dong.startswith('**'): dang = dong.startswith('**Máy nền')
@@ -159,6 +187,37 @@ def vi_co_san():
     return 'Installed' in m.stdout
 
 
+def thu_keyring(env, py, gia, ve_bp, e_gia, anh):
+    """Khoá GIẢ vào kho khoá hệ điều hành, máy vẽ + máy kiểm đọc ra. Chỉ chạy trên máy CI (biến CI): máy người thật không bị ghi gì."""
+    tieu_de('keyring: khoá giả trong kho khoá hệ điều hành (Credential Manager / Keychain)')
+    if not os.environ.get('CI'): print('  (bỏ qua: không phải máy CI, không ghi vào kho khoá thật của máy này)'); return
+    tep = gia / 'thu-keyring.py'
+    tep.write_text('''import sys, keyring
+if sys.argv[1] == 'ghi': keyring.set_password('anh-qc', 'byteplus', 'KHOA-GIA-' + 'k' * 24)
+elif sys.argv[1] == 'xoa': keyring.delete_password('anh-qc', 'byteplus')
+else: sys.exit(0 if (keyring.get_password('anh-qc', 'byteplus') or '') == sys.argv[2] else 1)
+''', encoding='utf-8')
+    ma, ra = chay([py, tep, 'ghi'], env)
+    if ma != 0 and MAC:
+        print('  (bỏ qua keyring trên Mac CI: Keychain không ghi được trên máy CI — ' + ra.strip().splitlines()[-1][:150] + ')'); return
+    if not khang_dinh(ma == 0, 'ghi khoá giả vào kho khoá (keyring.set_password)', ra): return
+    try:
+        ma, ra = chay(ve_bp + ['--ra', anh / 've' / 'kr.jpg'], e_gia)
+        khang_dinh(ma == 0 and 'OK' in ra and (anh / 've' / 'kr.jpg').exists(), 'byteplus: KHÔNG có biến, KHÔNG có tệp khoá — đọc được khoá từ keyring, ảnh giả về', ra)
+        ma, ra = chay([sys.executable, SCRIPTS / 'kiem-cong-cu-ve.py'], env)
+        d4 = next((l for l in ra.splitlines() if l.startswith('| 4.')), '')
+        khang_dinh('✅ đã có khoá' in d4, 'kiem-cong-cu-ve: dòng 4 (Seedream) báo ✅ đã có khoá nhờ keyring', ra)
+        khang_dinh('KHOA-GIA' not in ra, 'kiem-cong-cu-ve KHÔNG in khoá ra', ra)
+        if WIN:  # hộp nhập kín của Windows: dựng form thật (không bấm được trên CI), đường ống PowerShell → Python → kho khoá chạy thật
+            e = dict(env, ANHQC_CHI_TAO='1')
+            ma, ra = chay([py, SCRIPTS / 'kiem-cong-cu-ve.py', '--nhap-khoa', 'byteplus'], e)
+            khang_dinh(ma == 0 and 'Đã lưu khoá byteplus' in ra and 'TAO-OK' not in ra, '--nhap-khoa (Windows): form dựng được, khoá đi qua ống vào kho khoá, KHÔNG in ra', ra)
+            ma, ra = chay([py, tep, 'doc', 'TAO-OK'], env)
+            khang_dinh(ma == 0, '--nhap-khoa (Windows): giá trị qua ống đúng là cái đã đưa vào kho khoá', ra)
+    finally:
+        chay([py, tep, 'xoa'], env)
+
+
 def giai_doan_2():
     from PIL import Image, ImageDraw
     home = Path(os.path.expanduser('~')); env = moi_truong(home)
@@ -249,10 +308,12 @@ class _Tra:
 requests.post = lambda *a, **k: _Tra()
 ''', encoding='utf-8')
     kd = home / '.config' / 'anh-qc'; kd.mkdir(parents=True, exist_ok=True)
-    (kd / 'byteplus.key').write_text('KHOA-GIA-' + 'x' * 24 + '\n', encoding='utf-8')
     e_gia = moi_truong(home, {'PYTHONPATH': str(gia)})
-    ma, ra = chay([py, SCRIPTS / 've-anh-byteplus.py', '--loi-nho', anh / 'loi.txt', '--mau', anh / 'hang.png', '--ti-le', '4:5', '--ra', anh / 've' / 'bp.jpg'], e_gia)
-    khang_dinh(ma == 0 and 'OK' in ra and (anh / 've' / 'bp.jpg').exists(), 'byteplus: ảnh giả về, lưu đúng tên .jpg, mã 0', ra)
+    ve_bp = [py, SCRIPTS / 've-anh-byteplus.py', '--loi-nho', anh / 'loi.txt', '--mau', anh / 'hang.png', '--ti-le', '4:5']
+    thu_keyring(env, py, gia, ve_bp, e_gia, anh)
+    (kd / 'byteplus.key').write_text('KHOA-GIA-' + 'x' * 24 + '\n', encoding='utf-8')  # tệp cũ (chỉ đọc) vẫn dùng được
+    ma, ra = chay(ve_bp + ['--ra', anh / 've' / 'bp.jpg'], e_gia)
+    khang_dinh(ma == 0 and 'OK' in ra and (anh / 've' / 'bp.jpg').exists(), 'byteplus: khoá ở tệp cũ → ảnh giả về, lưu đúng tên .jpg, mã 0', ra)
     so = anh / 've' / 'so-chi.jsonl'
     khang_dinh(so.exists() and json.loads(so.read_text(encoding='utf-8').splitlines()[-1]).get('ok') is True, 'byteplus: sổ so-chi.jsonl ghi ok=true')
     ma, ra = chay([py, SCRIPTS / 've-anh-byteplus.py', '--loi-nho', anh / 'loi.txt', '--ti-le', '4:5', '--tran-usd', '0.01', '--ra', anh / 've' / 'bp2.jpg'], e_gia)
