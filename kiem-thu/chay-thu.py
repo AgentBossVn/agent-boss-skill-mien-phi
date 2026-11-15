@@ -17,6 +17,7 @@ GOC = Path(__file__).resolve().parent.parent
 SCRIPTS = GOC / 'anh-quang-cao-san-pham' / 'scripts'
 TAM = GOC / '.tam'
 LOI: list[str] = []
+GIT_BASH = next((p for p in (r'C:\Program Files\Git\bin\bash.exe', r'C:\Program Files (x86)\Git\bin\bash.exe') if os.path.exists(p)), None)
 
 
 def moi_truong(home: Path, them=None):
@@ -67,14 +68,17 @@ def giai_doan_1():
     else: khang_dinh('$env:' not in ra and 'Start-Process' not in ra, 'Mac: lệnh in ra không lẫn PowerShell', ra)
     cam = re.findall(r'\|\s*(?:sh|bash|iex)\b|curl -|@latest|brew install|Notepad', ra)
     khang_dinh(not cam, f'không dòng lệnh nào tải-rồi-chạy-ngay / @latest / brew install / Notepad (thấy: {cam})', ra)
-    khang_dinh('--require-hashes' in ra and 'khoa-thu-vien.txt' in ra, 'lệnh cài thư viện dùng --require-hashes + khoa-thu-vien.txt', ra)
+    khoa_txt = (SCRIPTS / 'khoa-thu-vien.txt').read_text(encoding='utf-8')
+    khang_dinh('--require-hashes' in (SCRIPTS / 'kiem-cong-cu-ve.py').read_text(encoding='utf-8') and khoa_txt.count('--hash=sha256:') > 100
+               and 'winrt-windows-media-ocr==4!10.0.28000.2957 ; sys_platform == \'win32\'' in khoa_txt, 'cài thư viện dùng --require-hashes + tệp khoá có mã băm (gói Mac + Windows đủ)')
+    khang_dinh('--cai nen' in ra, 'máy nền cài qua lệnh con --cai nen (không cần shell riêng)', ra)
     khang_dinh(not re.findall(r'@openai/codex(?!@\d)|wrangler(?!@\d)(?= (?:dev|login))', ra), 'Codex và wrangler (nếu in ra) đều có bản ghim', ra)
 
-    tieu_de('2a. --cai-uv: tải THẬT 1 bản uv ghim, đối chiếu SHA-256 thật (HOME riêng)')
+    tieu_de('2a. --cai uv: tải THẬT 1 bản uv ghim, đối chiếu SHA-256 thật (HOME riêng)')
     home_uv = TAM / 'home-uv'; home_uv.mkdir()
     env_uv = moi_truong(home_uv)
-    ma, ra_uv = chay([sys.executable, SCRIPTS / 'kiem-cong-cu-ve.py', '--cai-uv'], env_uv)
-    khang_dinh(ma == 0 and 'Đã khớp SHA-256' in ra_uv, '--cai-uv chạy xong, báo đã khớp SHA-256', ra_uv)
+    ma, ra_uv = chay([sys.executable, SCRIPTS / 'kiem-cong-cu-ve.py', '--cai', 'uv'], env_uv)
+    khang_dinh(ma == 0 and 'Đã khớp SHA-256' in ra_uv, '--cai uv chạy xong, báo đã khớp SHA-256', ra_uv)
     uv_moi = home_uv / '.local' / 'bin' / ('uv.exe' if WIN else 'uv')
     khang_dinh(uv_moi.exists(), f'uv nằm ở {uv_moi}')
     if uv_moi.exists():
@@ -87,7 +91,7 @@ class _R(io.BytesIO):
     def __enter__(self): return self
     def __exit__(self, *a): return False
 urllib.request.urlopen = lambda *a, **k: _R(b'khong-phai-uv')
-sys.argv = [sys.argv[1], '--cai-uv']
+sys.argv = [sys.argv[1], '--cai', 'uv']
 runpy.run_path(sys.argv[0], run_name='__main__')
 ''', encoding='utf-8')
     ma, ra_sai = chay([sys.executable, gia_sai, SCRIPTS / 'kiem-cong-cu-ve.py'], moi_truong(TAM / 'home-uv-sai'))
@@ -101,10 +105,15 @@ runpy.run_path(sys.argv[0], run_name='__main__')
     for i, l in enumerate(lenh):
         if re.search(r'\b(brew|winget)\b', l): print(f'  (bỏ qua lệnh cần brew/winget trên máy CI: {l[:60]}…)'); continue
         print(f'  > {l[:150]}')
-        if WIN:
-            ps1 = TAM / f'lenh-{i}.ps1'; ps1.write_text(l + '\n', encoding='utf-8-sig')
-            m, o = chay(['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', ps1], env)
-        else: m, o = chay(['/bin/bash', '-c', l], env)
+        if WIN:  # mọi dòng in ra phải chạy được ở CẢ PowerShell lẫn Git Bash; thêm exit $LASTEXITCODE vì PowerShell không tự trả mã lỗi của lệnh ngoài
+            m, o = chay(['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', l + '; exit $LASTEXITCODE'], env)
+            khang_dinh(m == 0, f'lệnh #{i + 1} chạy xong qua PowerShell (mã thoát thật)', o)
+            if GIT_BASH:
+                m, o = chay([GIT_BASH, '-c', l], env)
+                khang_dinh(m == 0, f'lệnh #{i + 1} chạy xong qua Git Bash (dòng in ra dùng được ở shell của Claude Code trên Windows)', o)
+            else: khang_dinh(False, 'máy CI Windows phải có Git Bash')
+            continue
+        m, o = chay(['/bin/bash', '-c', l], env)
         khang_dinh(m == 0, f'lệnh cài #{i + 1} chạy xong', o)
     ma, ra = chay([sys.executable, SCRIPTS / 'kiem-cong-cu-ve.py'], env)
     khang_dinh('| Máy nền' in ra and '✅ sẵn sàng' in next((l for l in ra.splitlines() if l.startswith('| Máy nền')), ''),
@@ -133,12 +142,12 @@ def phong(n):
     return ImageFont.load_default(size=n)
 
 
-def ve_nhan(khoi_luong):
+def ve_nhan(khoi_luong, ten='CÀ PHÊ HÒA TAN'):
     """Nhãn thử tự vẽ (không phải nhãn thật của hãng nào)."""
     from PIL import Image, ImageDraw
     im = Image.new('RGB', (1000, 1300), (246, 238, 214)); d = ImageDraw.Draw(im)
     d.rectangle((30, 30, 970, 1270), outline=(150, 20, 20), width=10)
-    for chu, y, co in (('CÀ PHÊ HÒA TAN', 140, 92), ('3in1', 420, 260), (khoi_luong, 860, 260)):
+    for chu, y, co in ((ten, 140, 92), ('3in1', 420, 260), (khoi_luong, 860, 260)):
         r = d.textbbox((0, 0), chu, font=phong(co))
         d.text(((1000 - (r[2] - r[0])) // 2 - r[0], y), chu, font=phong(co), fill=(120, 10, 10))
     return im
@@ -168,6 +177,15 @@ def thu_doc_chu(env, py, ten_luot):
     r = hang_ket_qua(ra)
     khang_dinh(len(r) == 3 and r[0].rstrip().endswith('ĐẠT'), '  "336 g" ĐẠT', ra)
     khang_dinh(not any('TRƯỢT' in x for x in r), '  ảnh vẽ đúng: không chữ nào TRƯỢT', ra)
+    if MAC:
+        khang_dinh(len(r) == 3 and r[2].rstrip().endswith('ĐẠT'), '  "CÀ PHÊ HÒA TAN" ĐẠT', ra)
+        khang_dinh(len(r) == 3 and (r[1].rstrip().endswith('ĐẠT') or 'MÁY KHÔNG ĐỌC ĐƯỢC' in r[1]), '  "3in1" ĐẠT hoặc MÁY KHÔNG ĐỌC ĐƯỢC', ra)
+        ma_d, ra_d = doc_chu(env, py, TAM / 'anh' / 've-sai-dau.png')
+        r_d = hang_ket_qua(ra_d)
+        khang_dinh(ma_d == 2 and len(r_d) == 3 and r_d[2].rstrip().endswith('TRƯỢT'), '  ve-sai-dau.png ("CA PHE HOA TAN" mất dấu): Mac phải TRƯỢT, mã 2', ra_d)
+    else:
+        khang_dinh('Bộ đọc chữ:' in ra, '  Windows in dòng "Bộ đọc chữ: <ngôn ngữ>" (có ít nhất 1 ngôn ngữ đọc được)', ra)
+        khang_dinh(len(r) == 3 and all(x.rstrip().endswith('ĐẠT') or 'CẦN SOÁT MẮT' in x for x in r), '  Windows: mỗi chữ ĐẠT hoặc CẦN SOÁT MẮT (không TRƯỢT giả)', ra)
     print('  (thông tin) kết quả 3 chữ:', ' | '.join(' '.join(x.split()) for x in r))
     ma, ra = doc_chu(env, py, TAM / 'anh' / 've-dung.png', ('--vung-ve', '0.15,0.1,0.85,0.9', '--vung-hang', '0,0,1,1'))
     khang_dinh(ma == 0, 'ảnh vẽ ĐÚNG, có --vung-ve/--vung-hang → mã thoát 0', ra)
@@ -176,15 +194,6 @@ def thu_doc_chu(env, py, ten_luot):
         r = hang_ket_qua(ra)
         khang_dinh(ma == 2 and len(r) == 3 and r[0].rstrip().endswith('TRƯỢT'), f'{ten}: mã thoát 2 và dòng "336 g" TRƯỢT', ra)
     return ra
-
-
-ENV_PS = {k: v for k, v in os.environ.items() if k != 'PSModulePath'}  # xem moi_truong()
-
-
-def vi_co_san():
-    m = subprocess.run(['powershell', '-NoProfile', '-Command', "(Get-WindowsCapability -Online -Name 'Language.OCR~~~vi-VN*').State"],
-                       capture_output=True, text=True, env=ENV_PS)
-    return 'Installed' in m.stdout
 
 
 def thu_keyring(env, py, gia, ve_bp, e_gia, anh):
@@ -225,22 +234,11 @@ def giai_doan_2():
     nhan = ve_nhan('336 g'); nhan.save(anh / 'hang.png')
     canh_ve(nhan).save(anh / 've-dung.png')
     canh_ve(ve_nhan('1336 g')).save(anh / 've-sai-1336.png'); canh_ve(ve_nhan('136 g')).save(anh / 've-sai-136.png')
+    canh_ve(ve_nhan('336 g', 'CA PHE HOA TAN')).save(anh / 've-sai-dau.png')
     (anh / 'loi.txt').write_text('Cảnh bàn gỗ, ánh sáng sớm, chừa chỗ chữ phía trên.', encoding='utf-8')
 
     # --- máy đọc chữ
-    if WIN:
-        da_co_vi = vi_co_san()
-        ra = thu_doc_chu(env, py, f'Windows, lượt 1 ({"đã có" if da_co_vi else "CHƯA có"} gói tiếng Việt)')
-        if not da_co_vi:
-            khang_dinh('chưa có gói đọc tiếng Việt: so không dấu' in ra, 'lượt 1 in dòng "chưa có gói đọc tiếng Việt: so không dấu"', ra)
-            tieu_de('thêm gói đọc tiếng Việt cho Windows (CI có quyền quản trị)')
-            m = subprocess.run(['powershell', '-NoProfile', '-Command', 'Add-WindowsCapability -Online -Name "Language.OCR~~~vi-VN~0.0.1.0"'],
-                               capture_output=True, text=True, env=ENV_PS)
-            if m.returncode == 0 and vi_co_san():
-                ra = thu_doc_chu(env, py, 'Windows, lượt 2 (đã thêm gói tiếng Việt)')
-                khang_dinh('chưa có gói đọc tiếng Việt' not in ra, 'lượt 2 KHÔNG còn dòng cảnh báo thiếu gói tiếng Việt', ra)
-            else: khang_dinh(False, 'Add-WindowsCapability vi-VN OCR không cài được trên máy CI', (m.stdout + m.stderr))
-        else: print('  (máy CI đã có gói tiếng Việt từ đầu: bỏ qua lượt 1 "chưa có gói")')
+    if WIN: thu_doc_chu(env, py, 'Windows (không có bộ đọc tiếng Việt: so không dấu)')
     else: thu_doc_chu(env, py, 'Mac')
 
     # --- tách nền (ảnh có thẻ EXIF xoay)
@@ -287,6 +285,13 @@ def giai_doan_2():
         khang_dinh(sum(ImageStat.Stat(ImageChops.difference(a, b)).mean) > 1, 'ảnh đặt chữ KHÁC nền (chữ đã lên)')
         khang_dinh(jpg.stat().st_size > 5000, 'có cả JPG')
     else: khang_dinh(False, 'dat-chu ra đủ PNG + JPG', ra)
+    if WIN:  # đường Edge chưa từng thử vì máy CI có Chrome: ép dùng Edge qua biến CHROME
+        edge = next((x for x in (r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe', r'C:\Program Files\Microsoft\Edge\Application\msedge.exe') if os.path.exists(x)), '')
+        if khang_dinh(bool(edge), 'máy CI Windows có Edge'):
+            dc2 = anh / 'dat-chu-edge'; dc2.mkdir(exist_ok=True); shutil.copy(dc / 'nen.png', dc2 / 'nen.png'); shutil.copy(dc / 'cau-hinh.json', dc2 / 'cau-hinh.json')
+            ma, ra = chay([py, SCRIPTS / 'dat-chu.py', dc2 / 'cau-hinh.json'], moi_truong(home, {'CHROME': edge}))
+            ok = ma == 0 and (dc2 / 'ra' / 'thu.png').exists()
+            khang_dinh(ok and Image.open(dc2 / 'ra' / 'thu.png').size == (1080, 1350), 'dat-chu bằng EDGE (CHROME=msedge.exe): ảnh 1080x1350', ra)
     # --- so sánh, cắt phóng to
     tieu_de('so-sanh-truoc-sau.py · cat-phong-to.py')
     ma, ra = chay([py, SCRIPTS / 'so-sanh-truoc-sau.py', anh / 'ss.jpg', f'Ảnh hãng={anh / "hang.png"}@0,0,500,500', f'Ảnh vẽ={anh / "ve-dung.png"}'], env)

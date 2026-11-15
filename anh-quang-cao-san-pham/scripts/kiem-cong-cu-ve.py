@@ -1,23 +1,29 @@
 # Kiểm trên máy người dùng: đã có / đã nối những công cụ vẽ nào, mỗi công cụ tốn tiền gì, chọn rồi thì Agent làm gì.
 # Agent chạy máy này ở Bước 0, đưa bảng cho người dùng chọn. Chọn xong mà chưa sẵn sàng → Agent cho người dùng xem danh sách
 # sẽ cài (tên + nguồn chính thức + bản ghim), HỎI ĐỒNG Ý, rồi mới chạy các dòng "Agent chạy"; người dùng làm dòng "Bạn làm".
-# Cài xong chạy lại máy này, thấy ✅ mới vẽ. Máy CHỈ ĐỌC (trừ --nhap-khoa, --cai-uv), KHÔNG in khoá / token ra.
+# Cài xong chạy lại máy này, thấy ✅ mới vẽ. Máy CHỈ ĐỌC (trừ --cai, --chay, --mo, --nhap-khoa), KHÔNG in khoá / token ra.
+# MỌI dòng "Agent chạy" chạy được ở CẢ HAI shell (bash / Git Bash và PowerShell): đường dẫn dùng "/", việc cài do CHÍNH Python làm qua
+# lệnh con (subprocess với danh sách đối số, không cần shell, tự thêm các thư mục công cụ vào PATH) — không tiền tố $env:Path, không "scripts\".
 # Không có dòng cài nào kiểu "tải về rồi chạy ngay"; mọi thứ ghim đúng bản: uv (SHA-256 viết cứng), thư viện Python
 # (mã băm ở scripts/khoa-thu-vien*.txt), Codex + wrangler (npm, bản ghim).
-# Chạy:  python3 kiem-cong-cu-ve.py              → bảng công cụ
-#        python3 kiem-cong-cu-ve.py --cai-uv     → tải ĐÚNG 1 bản uv từ GitHub releases của astral-sh, đối chiếu SHA-256 viết cứng,
-#          khớp mới giải nén uv/uvx vào ~/.local/bin (Windows %USERPROFILE%\.local\bin). Chỉ dùng thư viện chuẩn Python.
-#        <Python riêng> kiem-cong-cu-ve.py --nhap-khoa [gemini|byteplus] → hộp nhập KÍN (Mac: hộp của macOS · Windows: hộp của Windows),
-#          khoá đi qua ống nội bộ vào kho khoá của hệ điều hành (Mac = Keychain, Windows = Credential Manager, gói keyring),
-#          service "anh-qc". KHÔNG in, KHÔNG ghi tệp. Phải chạy bằng Python riêng (có gói keyring).
-# Windows (16/11/2026): máy in lệnh PowerShell, môi trường Python riêng ở %USERPROFILE%\.venv-anh-qc\Scripts\python.exe, cài bằng uv;
-#   máy đọc chữ = Windows.Media.Ocr qua gói PyWinRT. Mac: Chrome / Node tải ở trang chính thức (người dùng bấm), không Homebrew.
+# Chạy:  python3 kiem-cong-cu-ve.py                 → bảng công cụ (Windows: py -3 thay python3)
+#        ... --cai uv       → tải ĐÚNG 1 bản uv từ GitHub releases của astral-sh, đối chiếu SHA-256 viết cứng, khớp mới giải nén vào ~/.local/bin
+#        ... --cai nen      → uv (nếu chưa có) + Python 3.12 riêng ~/.venv-anh-qc + thư viện khoá mã băm (khoa-thu-vien.txt)
+#        ... --cai gemini   → thư viện Gemini trả tiền (khoa-thu-vien-gemini.txt)   ... --cai codex → npm i -g @openai/codex@<bản ghim>
+#        ... --cai node | chrome  → Windows: winget (bản hãng). Mac: người dùng tự tải ở trang chính thức (lệnh --mo mở trang)
+#        ... --chay codex-login | codex-logout | agy | cloudflare-login   → chạy công cụ đó (tự tìm đường), đầu ra hiện thẳng
+#        ... --mo <địa chỉ web>  → mở trình duyệt
+#        ... --nhap-khoa [gemini|byteplus] → hộp nhập KÍN (Mac: hộp của macOS · Windows: hộp của Windows), khoá đi qua ống nội bộ vào kho khoá
+#          của hệ điều hành (Mac = Keychain, Windows = Credential Manager, gói keyring), service "anh-qc". KHÔNG in, KHÔNG ghi tệp.
+#          Máy tự chuyển sang Python riêng (có gói keyring) nếu đang chạy bằng Python khác.
+# Windows (16/11/2026): môi trường Python riêng ở %USERPROFILE%\.venv-anh-qc\Scripts\python.exe, cài bằng uv; Windows mới tinh chưa có Python
+#   thì Agent làm bước mồi trong SKILL.md (winget Python.Python.3.12). Máy đọc chữ = Windows.Media.Ocr qua PyWinRT. Mac: Chrome / Node tải ở trang chính thức.
 # Bản 3 (15/11/2026): Tầng 1 gói AI bạn ĐANG TRẢ (ChatGPT, Gemini, Claude) → Tầng 2 máy vẽ các hãng qua API
 #   (miễn phí trước, rồi trả tiền) → Tầng 3 công cụ làm ảnh chuyên nghiệp bạn đã dùng sẵn.
 import sys
 if sys.platform == 'win32':  # in tiếng Việt qua ống không vỡ (Windows mặc định cp1252)
     sys.stdout.reconfigure(encoding='utf-8'); sys.stderr.reconfigure(encoding='utf-8')
-import hashlib, io, os, platform, shutil, socket, subprocess, sys, tarfile, urllib.request, zipfile
+import hashlib, io, os, platform, shutil, socket, subprocess, sys, tarfile, urllib.request, webbrowser, zipfile
 
 NHA = os.path.expanduser('~')
 WIN = sys.platform == 'win32'
@@ -28,18 +34,15 @@ KHOA_GEMINI, KHOA_BYTEPLUS = KHOA['gemini'][1], KHOA['byteplus'][1]
 DICH_VU_KHOA = 'anh-qc'  # service trong kho khoá hệ điều hành; username = gemini | byteplus
 GOC = os.path.dirname(os.path.abspath(__file__))
 PY = os.path.join(NHA, '.venv-anh-qc', 'Scripts', 'python.exe') if WIN else os.path.join(NHA, '.venv-anh-qc', 'bin', 'python')  # môi trường riêng của skill (dòng "Cài 1 lần" trong SKILL.md)
-# Phiên Agent không tự có đường tới công cụ vừa cài ⇒ mọi lệnh in ra đều kèm tiền tố này
-TIEN_TO = ('$env:Path = "$env:USERPROFILE\\.local\\bin;$env:LOCALAPPDATA\\Programs\\OpenAI\\Codex\\bin;$env:LOCALAPPDATA\\agy\\bin;$env:APPDATA\\npm;$env:ProgramFiles\\nodejs;" + $env:Path; '
-           if WIN else 'export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"; ')
-PYTHON_KHOI = 'python' if WIN else 'python3'  # lệnh chạy chính máy này (Windows: python, không có python3)
-KIEM = f'{PYTHON_KHOI} "{os.path.abspath(__file__)}"'  # đường tuyệt đối: Agent có thể đang đứng ở thư mục khác
-KIEM_RIENG = ('& ' if WIN else '') + f'"{PY}" "{os.path.abspath(__file__)}"'  # chạy bằng Python riêng (cần gói keyring)
-TU_MAY = set()  # lệnh gọi lại chính máy này — in ra KHÔNG kèm tiền tố PATH
-NPM, NPX = ('npm.cmd', 'npx.cmd') if WIN else ('npm', 'npx')  # PowerShell chặn npm.ps1 khi chính sách mặc định ⇒ gọi .cmd
+SCRIPT = os.path.abspath(__file__)
+SLASH = lambda p: p.replace('\\', '/')  # đường dẫn in ra dùng "/" cho cả bash lẫn PowerShell
+PYTHON_KHOI = ('py -3' if shutil.which('py') else 'python') if WIN else 'python3'  # Windows: "py -3" không dính lệnh "python" giả của Microsoft Store
+KIEM = f'{PYTHON_KHOI} "{SLASH(SCRIPT)}"'  # đường tuyệt đối: Agent có thể đang đứng ở thư mục khác; chỉ dấu " bao đường dẫn (bash + PowerShell đều hiểu)
 CODEX_BAN, WRANGLER_BAN = '0.169.0', '4.162.0'  # ghim (npm view, 16/11/2026); Codex bản này có công cụ vẽ ảnh (image_generation)
-# Thư viện cài bằng uv + mã băm: scripts/khoa-thu-vien.txt (nguồn thu-vien.in), riêng Gemini trả tiền: khoa-thu-vien-gemini.txt
-CAI_PIP = f'uv pip install --python "{PY}" --require-hashes -r '
-MO_TRANG = 'Start-Process ' if WIN else 'open '
+THU_MUC_CONG_CU = ([os.path.join(NHA, '.local', 'bin'), os.path.join(LOCALAPPDATA, 'Programs', 'OpenAI', 'Codex', 'bin'), os.path.join(LOCALAPPDATA, 'agy', 'bin'),
+                    os.path.join(APPDATA, 'npm'), os.path.join(os.environ.get('ProgramFiles', ''), 'nodejs')] if WIN
+                   else ['/opt/homebrew/bin', '/usr/local/bin', os.path.join(NHA, '.local', 'bin')])
+ENV_CAI = dict(os.environ, PATH=os.pathsep.join(THU_MUC_CONG_CU + [os.environ.get('PATH', '')]))  # phiên Agent không tự có đường tới công cụ vừa cài
 
 
 def chay(lenh, cho=20, env=None):
@@ -86,7 +89,7 @@ def co_khoa_keyring(ten):  # hỏi Python riêng: kho khoá hệ điều hành c
     return ma == 0
 
 
-if '--cai-uv' in sys.argv:
+def cai_uv():
     may = platform.machine().lower()
     kieu = (sys.platform if sys.platform in ('darwin', 'win32') else '', 'arm64' if may in ('arm64', 'aarch64') else 'x64' if may in ('x86_64', 'amd64') else '')
     if kieu not in UV_GOI: sys.exit(f'LỖI chưa có bản uv ghim cho máy này ({sys.platform}, {may}).')
@@ -110,12 +113,67 @@ if '--cai-uv' in sys.argv:
         d = os.path.join(dich, ten); tam = d + '.moi'
         with open(tam, 'wb') as f: f.write(nd)
         os.chmod(tam, 0o755); os.replace(tam, d)
-    print(f'Đã khớp SHA-256 và cài uv {UV_BAN} vào {dich} ({", ".join(sorted(tep))}).'); sys.exit(0)
+    print(f'Đã khớp SHA-256 và cài uv {UV_BAN} vào {dich} ({", ".join(sorted(tep))}).')
+
+
+def chay_that(lenh):  # chạy công cụ, đầu ra hiện thẳng; tự tìm đường (kể cả .cmd trên Windows); trả mã thoát
+    exe = shutil.which(lenh[0], path=ENV_CAI['PATH'])
+    if not exe: sys.exit(f'LỖI không thấy lệnh {lenh[0]} trên máy (cài trước đã).')
+    print('> ' + ' '.join([lenh[0]] + [SLASH(x) if os.sep in x else x for x in lenh[1:]]), flush=True)
+    try: return subprocess.call([exe] + lenh[1:], env=ENV_CAI)
+    except OSError as e: sys.exit(f'LỖI không chạy được {lenh[0]}: {e}')
+
+
+def tep_khoa_thu_vien(ten): return os.path.join(GOC, ten)
+
+
+def cai(viec):
+    if viec == 'uv': return cai_uv()
+    if viec in ('nen', 'gemini'):
+        if not shutil.which('uv', path=ENV_CAI['PATH']): cai_uv()
+        if viec == 'nen' and not os.path.exists(PY):
+            if chay_that(['uv', 'venv', '--python', '3.12', os.path.dirname(os.path.dirname(PY))]): sys.exit('LỖI uv không tạo được môi trường Python 3.12.')
+        ma = chay_that(['uv', 'pip', 'install', '--python', PY, '--require-hashes', '-r', tep_khoa_thu_vien('khoa-thu-vien.txt' if viec == 'nen' else 'khoa-thu-vien-gemini.txt')])
+        if ma: sys.exit(f'LỖI cài thư viện thất bại (mã {ma}).')
+        return
+    if viec == 'codex':
+        ma = chay_that(['npm', 'i', '-g'] + ([] if WIN else ['--prefix', os.path.join(NHA, '.local')]) + [f'@openai/codex@{CODEX_BAN}'])
+        if ma: sys.exit(f'LỖI cài Codex thất bại (mã {ma}). Chưa có Node thì cài Node trước.')
+        return
+    if viec in ('node', 'chrome') and WIN:
+        ma = chay_that(['winget', 'install', '--id', 'OpenJS.NodeJS.LTS' if viec == 'node' else 'Google.Chrome', '-e',
+                        '--accept-package-agreements', '--accept-source-agreements'])
+        if ma: sys.exit(f'LỖI winget thất bại (mã {ma}). Nếu hiện hộp xin quyền (UAC) thì bấm Yes rồi chạy lại.')
+        return
+    sys.exit(f'LỖI không có việc cài "{viec}" trên máy này (Mac: Node / Chrome người dùng tự tải ở trang chính thức).')
+
+
+def chay_viec(viec):
+    cac = {'codex-login': ['codex', 'login'], 'codex-logout': ['codex', 'logout'], 'agy': ['agy'],
+           'cloudflare-login': ['npx', '--yes', f'wrangler@{WRANGLER_BAN}', 'login']}
+    if viec not in cac: sys.exit('LỖI --chay nhận: ' + ' | '.join(cac))
+    return chay_that(cac[viec])
+
+
+def doi(tham_so):
+    i = sys.argv.index(tham_so)
+    if i + 1 >= len(sys.argv): sys.exit(f'LỖI {tham_so} cần thêm 1 giá trị.')
+    return sys.argv[i + 1]
+
+
+if '--cai' in sys.argv: cai(doi('--cai')); sys.exit(0)
+if '--chay' in sys.argv: sys.exit(chay_viec(doi('--chay')))
+if '--mo' in sys.argv:
+    url = doi('--mo')
+    if not url.startswith('https://'): sys.exit('LỖI chỉ mở địa chỉ https://')
+    print('Mở trình duyệt:', url, '→ mở được' if webbrowser.open(url) else '→ KHÔNG mở được, người dùng tự mở địa chỉ này'); sys.exit(0)
 
 if '--nhap-khoa' in sys.argv:
     loai = next((a for a in sys.argv if a in KHOA), 'gemini'); nhan = KHOA[loai][0]
     try: import keyring
-    except ImportError: sys.exit('LỖI chạy bằng Python riêng của skill (có gói keyring), không phải Python hệ thống: ' + PY)
+    except ImportError:  # Python hệ thống không có keyring ⇒ chạy lại chính máy này bằng Python riêng
+        if os.path.exists(PY) and os.path.abspath(sys.executable) != os.path.abspath(PY): sys.exit(subprocess.call([PY, SCRIPT] + sys.argv[1:]))
+        sys.exit('LỖI chưa có Python riêng của skill (thiếu gói keyring): chạy --cai nen trước.')
     if WIN:
         e = dict(os.environ, ANHQC_NHAN=f'Dán khoá {nhan} rồi bấm OK. Khoá chỉ lưu trong Credential Manager của máy này.')
         ma, ra = chay(['powershell.exe', '-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-Command', HOP_KIN_WIN], cho=600, env=e)
@@ -130,13 +188,10 @@ if '--nhap-khoa' in sys.argv:
     print(f'Đã lưu khoá {loai} vào kho khoá của máy (service {DICH_VU_KHOA}); không in ra, không ghi tệp.'); sys.exit(0)
 
 mac = sys.platform == 'darwin'
-uv = tim('uv', os.path.join(NHA, '.local', 'bin', 'uv.exe' if WIN else 'uv'))
-CAI_UV_TRUOC = [] if uv else [KIEM + ' --cai-uv']
-TU_MAY.update(CAI_UV_TRUOC)
 node = tim('npm', '/opt/homebrew/bin/npm', '/usr/local/bin/npm', os.path.join(os.environ.get('ProgramFiles', ''), 'nodejs', 'npm.cmd'))
 if node: CAI_NODE, BAN_NODE = [], []
-elif WIN: CAI_NODE, BAN_NODE = ['winget install --id OpenJS.NodeJS.LTS -e --accept-package-agreements --accept-source-agreements'], ['nếu hiện hộp xin quyền (UAC) thì bấm Yes']
-else: CAI_NODE, BAN_NODE = [MO_TRANG + 'https://nodejs.org/en/download'], ['tải bản LTS cho Mac (.pkg), mở tệp, bấm Continue/Install theo hướng dẫn (có thể hỏi mật khẩu máy), xong báo Agent']
+elif WIN: CAI_NODE, BAN_NODE = [KIEM + ' --cai node'], ['nếu hiện hộp xin quyền (UAC) thì bấm Yes']
+else: CAI_NODE, BAN_NODE = [KIEM + ' --mo https://nodejs.org/en/download'], ['tải bản LTS cho Mac (.pkg), mở tệp, bấm Continue/Install theo hướng dẫn (có thể hỏi mật khẩu máy), xong báo Agent']
 bang = []  # (tên, tiền, trạng thái, lệnh Agent chạy, việc bạn làm)
 
 # --- Máy nền: mọi đường đều cần (soát, dán nhãn, đặt chữ)
@@ -144,27 +199,26 @@ lenh, ban = [], []
 THU_VIEN = 'import PIL, numpy, scipy, requests, keyring' + (', Vision' if sys.platform == 'darwin' else ', winrt.windows.media.ocr' if WIN else '')
 if not (os.path.exists(PY) and chay([PY, '-c', THU_VIEN])[0] == 0):
     # python3 sẵn của Apple là 3.9 ⇒ không cài nổi bản thư viện đã ghim (cần ≥ 3.12) ⇒ uv tự tải Python 3.12 riêng
-    lenh += CAI_UV_TRUOC + ([f'uv venv --python 3.12 "{os.path.join(NHA, ".venv-anh-qc")}"'] if not os.path.exists(PY) else [])
-    lenh.append(CAI_PIP + f'"{os.path.join(GOC, "khoa-thu-vien.txt")}"')
+    lenh.append(KIEM + ' --cai nen')  # uv (nếu chưa có) + Python 3.12 riêng + thư viện khoá mã băm
 if not tim_trinh_duyet():  # Chrome hoặc Edge đều được (Windows luôn có Edge)
     if WIN:
-        lenh += ['winget install --id Google.Chrome -e --accept-package-agreements --accept-source-agreements']; ban += ['nếu hiện hộp xin quyền (UAC) thì bấm Yes']
+        lenh += [KIEM + ' --cai chrome']; ban += ['nếu hiện hộp xin quyền (UAC) thì bấm Yes']
     else:
-        lenh += [MO_TRANG + 'https://www.google.com/chrome/']; ban += ['tải Chrome (hoặc Edge) cho Mac, mở tệp tải về, kéo vào thư mục Applications, xong báo Agent']
+        lenh += [KIEM + ' --mo https://www.google.com/chrome/']; ban += ['tải Chrome (hoặc Edge) cho Mac, mở tệp tải về, kéo vào thư mục Applications, xong báo Agent']
 bang.append(('Máy nền (đường nào cũng cần: soát, đọc chữ, dán nhãn, đặt chữ)', '0đ', '⚠️ thiếu' if lenh else '✅ sẵn sàng', lenh, ban))
 nen_ok = not lenh
 
 # ===== TẦNG 1 — gói AI bạn ĐANG TRẢ: Agent của gói đó tự vẽ, 0đ thêm
 # --- 1. Gói ChatGPT qua Codex
-CAI_CODEX = f'{NPM} i -g ' + ('' if WIN else '--prefix "$HOME/.local" ') + f'@openai/codex@{CODEX_BAN}'  # Mac: vào ~/.local/bin, khỏi cần quyền quản trị
+CAI_CODEX = KIEM + ' --cai codex'  # Mac: vào ~/.local/bin, khỏi cần quyền quản trị
 codex = tim('codex', os.path.join(NHA, '.local', 'bin', 'codex'), '/opt/homebrew/bin/codex', '/usr/local/bin/codex', os.path.join(APPDATA, 'npm', 'codex.cmd'))
 lenh, ban, tt = list(CAI_NODE), list(BAN_NODE), '✅ đã nối'
 if not codex: lenh.append(CAI_CODEX); tt = '⚠️ chưa cài'
 dang_nhap = chay([codex, 'login', 'status'])[1] if codex else ''
 if 'ChatGPT' not in dang_nhap:
-    if 'API key' in dang_nhap: tt = '⚠️ đang đăng nhập bằng KHOÁ API (vẽ sẽ TÍNH TIỀN OpenAI)'; lenh.append('codex logout')
+    if 'API key' in dang_nhap: tt = '⚠️ đang đăng nhập bằng KHOÁ API (vẽ sẽ TÍNH TIỀN OpenAI)'; lenh.append(KIEM + ' --chay codex-logout')
     elif codex: tt = '⚠️ chưa đăng nhập'
-    lenh.append('codex login')
+    lenh.append(KIEM + ' --chay codex-login')
     ban.append('trên trình duyệt chọn "Sign in with ChatGPT", đăng nhập tài khoản có gói Plus/Pro')
 elif not any(l.split()[:1] == ['image_generation'] and l.split()[-1:] == ['true'] for l in chay([codex, 'features', 'list'])[1].splitlines()):
     tt = '⚠️ Codex chưa bật công cụ vẽ'; lenh += CAI_NODE + [CAI_CODEX]
@@ -173,9 +227,9 @@ bang.append(('1. Gói ChatGPT — Codex tự vẽ (ảnh đẹp nhất đã đo)
 # --- 2. Gói Google AI Pro/Ultra qua Antigravity CLI (công cụ generate_image có sẵn)
 agy = tim('agy', os.path.join(NHA, '.local', 'bin', 'agy'), os.path.join(LOCALAPPDATA, 'agy', 'bin', 'agy.exe'))
 ma_agy, ra_agy = chay([agy, 'models'], cho=40) if agy else (-1, '')
-if not agy: tt, lenh, ban = '⚠️ chưa cài', [MO_TRANG + 'https://antigravity.google/download'], [
+if not agy: tt, lenh, ban = '⚠️ chưa cài', [KIEM + ' --mo https://antigravity.google/download'], [
     'tải + cài Antigravity, đăng nhập tài khoản Google có gói AI Pro/Ultra, bật công cụ dòng lệnh `agy` theo hướng dẫn trong ứng dụng']
-elif ma_agy != 0 or 'gemini' not in ra_agy: tt, lenh, ban = '⚠️ chưa đăng nhập', ['agy'], ['đăng nhập tài khoản Google có gói AI Pro/Ultra trong cửa sổ agy']
+elif ma_agy != 0 or 'gemini' not in ra_agy: tt, lenh, ban = '⚠️ chưa đăng nhập', [KIEM + ' --chay agy'], ['đăng nhập tài khoản Google có gói AI Pro/Ultra trong cửa sổ agy']
 else: tt, lenh, ban = '✅ đã nối', [], []
 bang.append(('2. Gói Gemini (Google AI Pro) — Antigravity tự vẽ', '0đ thêm, trừ hạn mức vẽ ảnh của gói (trần TUẦN riêng)', tt, lenh, ban))
 
@@ -190,7 +244,7 @@ co_bp = bool(os.environ.get('ARK_API_KEY')) or co_khoa_keyring('byteplus') or (o
     or (mac and chay(['security', 'find-generic-password', '-s', 'byteplus-ark-claude-thu-anh'])[0] == 0)
 bang.append(('4. Seedream 4.5 (BytePlus, hãng ByteDance) — ảnh thứ 2 sau ChatGPT', '200 ảnh miễn phí; sau đó ~0,04 USD/ảnh. Cần thẻ Visa/Master hoặc PayPal để KÍCH HOẠT (chưa trừ tiền)',
              '✅ đã có khoá' if co_bp else '⚠️ chưa có khoá',
-             [] if co_bp else [MO_TRANG + 'https://console.byteplus.com/ark/region:ap-southeast-1/openManagement', KIEM_RIENG + ' --nhap-khoa byteplus'],
+             [] if co_bp else [KIEM + ' --mo https://console.byteplus.com/ark/region:ap-southeast-1/openManagement', KIEM + ' --nhap-khoa byteplus'],
              [] if co_bp else ['đăng ký BytePlus, BẬT "Free Credits Only Mode" (chỉ dùng phần miễn phí), thêm thẻ/PayPal, bấm Activate dòng Seedream 4.5',
                                'trang API Key → Create → dán khoá vào hộp nhập kín hiện lên (khoá vào kho khoá của máy; KHÔNG dán vào chat)']))
 
@@ -203,7 +257,7 @@ da_cf = any(os.path.exists(f) and 'oauth_token' in open(f, encoding='utf-8', err
 with socket.socket() as s: s.settimeout(1); cong_bat = s.connect_ex(('127.0.0.1', 8841)) == 0
 bang.append(('5. Cloudflare — miễn phí, ảnh kém nhất', '0đ trong ~40 ảnh/ngày; quá mức máy tự dừng, không tính tiền',
              ('✅ đã nối · ' + ('cổng vẽ đang bật' if cong_bat else 'Agent bật cổng khi vẽ')) if da_cf and node else '⚠️ chưa nối',
-             CAI_NODE + ([] if da_cf else [f'{NPX} --yes wrangler@{WRANGLER_BAN} login']),
+             CAI_NODE + ([] if da_cf else [KIEM + ' --chay cloudflare-login']),
              BAN_NODE + ([] if da_cf else ['đăng nhập Cloudflare trên trình duyệt (chưa có thì đăng ký miễn phí), bấm "Allow"'])))
 
 # --- 6. Trả tiền Gemini (Nano Banana 2.1)
@@ -212,8 +266,8 @@ co_khoa = bool(os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KE
 co_genai = os.path.exists(PY) and chay([PY, '-c', 'import google.genai'])[0] == 0
 bang.append(('6. Gemini API trả tiền (Nano Banana 2.1)', '~0,05 USD/ảnh 2K (~0,25 USD/sản phẩm), trừ thẻ gắn với khoá Google — CHỈ khi bạn tự chọn',
              '✅ đã có khoá' if co_khoa and co_genai else '⚠️ chưa có khoá' if not co_khoa else '⚠️ thiếu thư viện',
-             ([] if co_genai else [CAI_PIP + f'"{os.path.join(GOC, "khoa-thu-vien-gemini.txt")}"'])
-             + ([] if co_khoa else [MO_TRANG + 'https://aistudio.google.com/apikey', KIEM_RIENG + ' --nhap-khoa gemini']),
+             ([] if co_genai else [KIEM + ' --cai gemini'])
+             + ([] if co_khoa else [KIEM + ' --mo https://aistudio.google.com/apikey', KIEM + ' --nhap-khoa gemini']),
              [] if co_khoa else ['tạo khoá + gắn thẻ thanh toán trên trang Google', 'dán khoá vào hộp nhập kín hiện lên (khoá vào kho khoá của máy; KHÔNG dán vào chat)']))
 
 
@@ -221,9 +275,10 @@ bang.append(('6. Gemini API trả tiền (Nano Banana 2.1)', '~0,05 USD/ảnh 2K
 bang.append(('7. Công cụ chuyên nghiệp bạn ĐÃ dùng (Photoroom, Pebblely, Canva…)', 'theo gói bạn đang trả',
              '— nói tên công cụ, Agent dùng tài khoản/khoá của bạn', [], []))
 
-TU_MAY.update(l for b in bang for l in b[3] if l.startswith((KIEM, KIEM_RIENG)))
 print('# Công cụ vẽ trên máy này — xếp theo thứ tự nên dùng\n(Tầng 1: gói AI bạn đang trả · Tầng 2: máy vẽ qua API · Tầng 3: công cụ chuyên nghiệp)\n'
-      '(mọi đường: phần Agent chạy trừ hạn mức gói Agent của bạn, ~120 nghìn token/sản phẩm)\n')
+      '(mọi đường: phần Agent chạy trừ hạn mức gói Agent của bạn, ~120 nghìn token/sản phẩm)\n'
+      f'Python riêng của skill (mọi lệnh `python` trong SKILL.md = đường này): {SLASH(PY)}\n'
+      'Mọi dòng "Agent chạy" bên dưới chạy được ở cả bash (Git Bash) lẫn PowerShell.\n')
 print('| Công cụ | Tiền | Trên máy bạn |\n|---|---|---|')
 for ten, tien, tt, _, _ in bang: print(f'| {ten} | {tien} | {tt} |')
 chua = [b for b in bang if b[2].startswith('⚠️') and (b[3] or b[4])]
@@ -232,5 +287,5 @@ if chua:
     for ten, _, _, lenh, ban in chua:
         print(f'\n**{ten}**')
         for l in lenh:
-            print(f'- Agent chạy: `{l if l in TU_MAY else TIEN_TO + l}`')
+            print(f'- Agent chạy: `{l}`')
         for l in ban: print(f'- Bạn làm: {l}')

@@ -43,12 +43,17 @@ with tempfile.TemporaryDirectory() as tam:  # thư mục trống: agy không th�
     nho = (' '.join('@' + t for t in ten) + f' Generate ONE {KHUNG[a.ti_le]} image with the generate_image tool (do not run any shell command, '
            'do not write any file yourself). Pass ALL attached files as image references. '
            + (DAU if ten else '') + open(a.loi_nho, encoding='utf-8').read().strip()).strip()
-    try:
-        r = subprocess.run([agy, '-p', nho, '--model', 'gemini-3.8-flash-medium', '--output-format', 'json', '--print-timeout', '420s'],
-                           cwd=tam, stdin=subprocess.DEVNULL, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=a.cho)
-        out = r.stdout + r.stderr
-    except subprocess.TimeoutExpired as e:  # agy hay in xong JSON mà không thoát (#1313) → vẫn đọc chữ đã in
-        out = ''.join(x.decode('utf-8', 'ignore') if isinstance(x, bytes) else (x or '') for x in (e.stdout, e.stderr))
+    # Đầu ra ghi vào TỆP, không qua ống: agy để lại tiến trình con giữ ống thì Windows chờ mãi sau khi hết giờ
+    tep_ra = os.path.join(tempfile.gettempdir(), f'agy-ra-{os.getpid()}.txt')
+    with open(tep_ra, 'wb') as f_ra:
+        pr = subprocess.Popen([agy, '-p', nho, '--model', 'gemini-3.8-flash-medium', '--output-format', 'json', '--print-timeout', '420s'],
+                              cwd=tam, stdin=subprocess.DEVNULL, stdout=f_ra, stderr=subprocess.STDOUT)
+        try: pr.wait(timeout=a.cho)
+        except subprocess.TimeoutExpired:  # agy hay in xong JSON mà không thoát (#1313) → vẫn đọc chữ đã in
+            pr.kill()
+    out = open(tep_ra, encoding='utf-8', errors='replace').read()
+    try: os.remove(tep_ra)
+    except OSError: pass
     d = {}
     for dong in reversed(out.strip().splitlines()):  # agy in 1 dòng JSON {status, error, conversation_id…}
         try: d = json.loads(dong); break

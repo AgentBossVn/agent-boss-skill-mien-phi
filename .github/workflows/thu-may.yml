@@ -18,5 +18,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      # Windows mới tinh KHÔNG có lệnh `python` thật: người dùng đi đường mồi `py -3`. Đường này gọi máy kiểm đúng kiểu đó, ở cả 2 shell
+      - name: Windows - máy kiểm qua đường mồi py -3 (PowerShell)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          [Console]::OutputEncoding = [Text.Encoding]::UTF8
+          py -3 --version
+          $out = py -3 anh-quang-cao-san-pham/scripts/kiem-cong-cu-ve.py | Out-String
+          if ($LASTEXITCODE -ne 0 -or $out -notmatch '\|---\|---\|---\|') { Write-Host $out; exit 1 }
+          Write-Host ($out -split "`n" | Select-Object -First 6)
+      - name: Windows - máy kiểm qua đường mồi py -3 (Git Bash)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          py -3 --version
+          py -3 anh-quang-cao-san-pham/scripts/kiem-cong-cu-ve.py > kiem.txt
+          grep -q -e '|---|---|---|' kiem.txt && head -6 kiem.txt
       - name: Chạy bộ thử
         run: python kiem-thu/chay-thu.py
