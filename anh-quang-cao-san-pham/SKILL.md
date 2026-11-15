@@ -4,7 +4,7 @@ description: "Ảnh quảng cáo có SẢN PHẨM THẬT đúng nhãn như ảnh
 argument-hint: "[sản phẩm + link web hãng, vd: nồi chiên không dầu hãng X + link trang sản phẩm]"
 metadata:
   author: Mai Xuân Đạt — Agent Boss
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 
 # Ảnh quảng cáo có sản phẩm thật — đúng chi tiết, đẹp như ảnh mẫu
