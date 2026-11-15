@@ -21,7 +21,8 @@ LOI: list[str] = []
 
 def moi_truong(home: Path, them=None):
     e = {k: v for k, v in os.environ.items() if k not in ('PYTHONUTF8', 'PYTHONIOENCODING', 'ARK_API_KEY', 'GEMINI_API_KEY',
-                                                           'GOOGLE_API_KEY', 'CODEX_API_KEY', 'OPENAI_API_KEY', 'AGY', 'CHROME')}
+                                                           'GOOGLE_API_KEY', 'CODEX_API_KEY', 'OPENAI_API_KEY', 'AGY', 'CHROME',
+                                                           'PSModulePath')}  # máy CI chạy pwsh 7: PSModulePath của nó làm powershell.exe 5.1 không nạp được mô-đun
     e['HOME'] = e['USERPROFILE'] = str(home)  # expanduser: Mac/Linux đọc HOME, Windows đọc USERPROFILE
     e.update(them or {})
     return e
@@ -138,8 +139,8 @@ def thu_doc_chu(env, py, ten_luot):
     khang_dinh(ma == 0, 'ảnh vẽ ĐÚNG → mã thoát 0', ra)
     r = hang_ket_qua(ra)
     khang_dinh(len(r) == 3 and r[0].rstrip().endswith('ĐẠT'), '  "336 g" ĐẠT', ra)
-    if MAC: khang_dinh(len(r) == 3 and all(x.rstrip().endswith('ĐẠT') for x in r), '  cả 3 chữ ĐẠT (Mac)', ra)
-    else: print('  (thông tin) kết quả 3 chữ:', ' | '.join(' '.join(x.split()) for x in r))
+    khang_dinh(not any('TRƯỢT' in x for x in r), '  ảnh vẽ đúng: không chữ nào TRƯỢT', ra)
+    print('  (thông tin) kết quả 3 chữ:', ' | '.join(' '.join(x.split()) for x in r))
     ma, ra = doc_chu(env, py, TAM / 'anh' / 've-dung.png', ('--vung-ve', '0.15,0.1,0.85,0.9', '--vung-hang', '0,0,1,1'))
     khang_dinh(ma == 0, 'ảnh vẽ ĐÚNG, có --vung-ve/--vung-hang → mã thoát 0', ra)
     for ten in ('ve-sai-1336.png', 've-sai-136.png'):
@@ -149,9 +150,12 @@ def thu_doc_chu(env, py, ten_luot):
     return ra
 
 
+ENV_PS = {k: v for k, v in os.environ.items() if k != 'PSModulePath'}  # xem moi_truong()
+
+
 def vi_co_san():
     m = subprocess.run(['powershell', '-NoProfile', '-Command', "(Get-WindowsCapability -Online -Name 'Language.OCR~~~vi-VN*').State"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, env=ENV_PS)
     return 'Installed' in m.stdout
 
 
@@ -172,7 +176,7 @@ def giai_doan_2():
             khang_dinh('chưa có gói đọc tiếng Việt: so không dấu' in ra, 'lượt 1 in dòng "chưa có gói đọc tiếng Việt: so không dấu"', ra)
             tieu_de('thêm gói đọc tiếng Việt cho Windows (CI có quyền quản trị)')
             m = subprocess.run(['powershell', '-NoProfile', '-Command', 'Add-WindowsCapability -Online -Name "Language.OCR~~~vi-VN~0.0.1.0"'],
-                               capture_output=True, text=True)
+                               capture_output=True, text=True, env=ENV_PS)
             if m.returncode == 0 and vi_co_san():
                 ra = thu_doc_chu(env, py, 'Windows, lượt 2 (đã thêm gói tiếng Việt)')
                 khang_dinh('chưa có gói đọc tiếng Việt' not in ra, 'lượt 2 KHÔNG còn dòng cảnh báo thiếu gói tiếng Việt', ra)
