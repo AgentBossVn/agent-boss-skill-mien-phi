@@ -18,7 +18,7 @@ Khi nhận việc, Agent sẽ tự làm các bước:
 
 ## Vẽ bằng gì và tốn bao nhiêu?
 
-Agent sẽ tự kiểm tra máy của bạn rồi in ra một bảng cho bạn chọn. Công cụ nào chưa có trên máy thì Agent tự cài, chỉ nhờ bạn làm những bước bắt buộc người làm như đăng nhập.
+Agent sẽ tự kiểm tra máy của bạn rồi in ra một bảng cho bạn chọn công cụ. Công cụ nào chưa có trên máy thì Agent sẽ cho bạn xem danh sách cần cài (lấy từ nguồn chính thức, đúng phiên bản đã kiểm tra), hỏi bạn đồng ý rồi mới cài. Bạn chỉ cần làm những bước bắt buộc người làm như đăng nhập.
 
 - **Ưu tiên gói AI bạn đang trả tiền, không tốn thêm chi phí:** dùng gói ChatGPT Plus/Pro (qua Codex, cho ảnh đẹp nhất mà mình đã đo), gói Google AI Pro (qua Antigravity), hoặc để Agent tự dựng ảnh bằng code từ ảnh thật của sản phẩm (tốn 0đ, sản phẩm đúng 100%, ra kiểu ảnh đồ hoạ chứ không phải ảnh chụp).
 - **Nếu bạn chưa có gói nào:** dùng Seedream 4.5 của BytePlus được 200 ảnh miễn phí (cần thêm thẻ Visa/Master hoặc PayPal để kích hoạt), hoặc dùng Cloudflare miễn phí khoảng 40 ảnh/ngày (cho chất lượng ảnh kém nhất).
@@ -27,7 +27,7 @@ Agent sẽ tự kiểm tra máy của bạn rồi in ra một bảng cho bạn c
 
 ## Bạn cần chuẩn bị gì?
 
-Bạn chỉ cần có Claude Code (hoặc Codex, Antigravity) chạy trên máy Mac hoặc Windows 10/11. Phần Python và các thư viện cần thiết thì Agent sẽ tự cài vào một thư mục riêng, không đụng chạm đến các phần mềm khác trên máy của bạn.
+Bạn chỉ cần có Claude Code (hoặc Codex, Antigravity) chạy trên máy Mac hoặc Windows 10/11. Phần Python và các thư viện cần thiết thì Agent sẽ tự cài vào một thư mục riêng, không đụng chạm đến các phần mềm khác trên máy của bạn. Khoá API (nếu dùng) sẽ được cất trong kho khoá có sẵn của máy (Keychain trên Mac, Credential Manager trên Windows), không lưu thành tệp chữ.
 
 ## Cách cài đặt và cập nhật
 
