@@ -71,6 +71,7 @@ Dữ liệu gửi ra ngoài: ảnh hãng + lời nhờ đi sang OpenAI (gói Cha
 - **Gemini API trả tiền:** `kiem-cong-cu-ve.py --nhap-khoa gemini` bằng Python riêng (hộp nhập kín); máy vẽ đọc khoá từ biến môi trường → kho khoá hệ điều hành → tệp cũ `~/.config/anh-qc/gemini.key` (chỉ đọc, cho người dùng bản cũ).
 
 ## Thư mục làm việc
+**Đường tới máy:** mọi `scripts/…` trong hướng dẫn tính từ thư mục CỦA SKILL (nơi có SKILL.md này), không phải thư mục dự án — gọi bằng đường tuyệt đối tới đó (viết dấu `/`), hoặc `cd` vào thư mục skill rồi chạy.
 ```
 <du-an>/anh-hang/        ảnh chính hãng (tho/ = ảnh tải về, bang-xem.jpg = bảng chọn có số)
 <du-an>/the-san-pham.md  sự thật đếm trên ảnh hãng + danh sách CHỮ QUAN TRỌNG
