@@ -206,9 +206,10 @@ if sys.argv[1] == 'ghi': keyring.set_password('anh-qc', 'byteplus', 'KHOA-GIA-' 
 elif sys.argv[1] == 'xoa': keyring.delete_password('anh-qc', 'byteplus')
 else: sys.exit(0 if (keyring.get_password('anh-qc', 'byteplus') or '') == sys.argv[2] else 1)
 ''', encoding='utf-8')
-    ma, ra = chay([py, tep, 'ghi'], env)
+    try: ma, ra = chay([py, tep, 'ghi'], env, timeout=60)
+    except subprocess.TimeoutExpired: ma, ra = -9, 'treo quá 60 giây (Keychain chờ mở khoá / hộp xin quyền, máy CI không có người bấm)'
     if ma != 0 and MAC:
-        print('  (bỏ qua keyring trên Mac CI: Keychain không ghi được trên máy CI — ' + ra.strip().splitlines()[-1][:150] + ')'); return
+        print('  (bỏ qua keyring trên Mac CI: Keychain không ghi được trên máy CI — ' + (ra.strip().splitlines() or ['?'])[-1][:150] + ')'); return
     if not khang_dinh(ma == 0, 'ghi khoá giả vào kho khoá (keyring.set_password)', ra): return
     try:
         ma, ra = chay(ve_bp + ['--ra', anh / 've' / 'kr.jpg'], e_gia)
