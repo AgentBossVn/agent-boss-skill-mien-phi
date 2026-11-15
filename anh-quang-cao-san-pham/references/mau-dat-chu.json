@@ -1,0 +1,71 @@
+{
+ "_huong_dan": "Mỗi khoá (trừ khoá bắt đầu bằng _) là 1 ảnh. Đường dẫn tính từ thư mục chứa tệp này. kieu: lon | lon-trang | dai | dai-toi | nho. co = cỡ so với co_chu. canh: trai | phai. suong = độ sáng quầng sau khối chữ (0..1). logo.the = true: đặt logo trong thẻ trắng bo góc (dùng khi nền rối/tối). Ảnh nền to hơn W×H vẫn được tự phủ đúng khung. Mở ảnh nền xem đầu người nằm đâu rồi mới đặt khoi. kieu_chu: nghieng-dam (mặc định) | dam | thanh-lich. nen_toi = true khi ảnh nền tối (chữ nhỏ thành trắng). mau = màu LẤY TỪ LOGO HÃNG (đừng để màu mẫu #EB4B28). Ra cả .png và .jpg (JPG 92 để giao).",
+ "anh-doc-1": {
+  "nen": "../sua/canh-1.png",
+  "W": 1080,
+  "H": 1350,
+  "logo": {
+   "tep": "logo.png",
+   "x": 820,
+   "y": 46,
+   "rong": 200,
+   "the": true
+  },
+  "khoi": "left:58px;top:60px",
+  "co_chu": 64,
+  "canh": "trai",
+  "suong": 0.35,
+  "mau": "#EB4B28",
+  "mau_toi": "#171B22",
+  "dong": [
+   {
+    "kieu": "dai-toi",
+    "chu": "Đồng hồ điện tử",
+    "co": 0.45
+   },
+   {
+    "kieu": "lon",
+    "chu": "Nhìn là"
+   },
+   {
+    "kieu": "lon-trang",
+    "chu": "thấy rõ"
+   }
+  ],
+  "web": "tenhang.vn",
+  "web_co": 24,
+  "kieu_chu": "dam"
+ },
+ "anh-ngang-1": {
+  "nen": "../sua/canh-2.png",
+  "W": 1920,
+  "H": 1080,
+  "logo": {
+   "tep": "logo.png",
+   "x": 64,
+   "y": 52,
+   "rong": 380,
+   "the": true
+  },
+  "khoi": "right:80px;top:110px",
+  "co_chu": 92,
+  "canh": "phai",
+  "suong": 0.35,
+  "dong": [
+   {
+    "kieu": "dai",
+    "chu": "Xe điện thế hệ mới",
+    "co": 0.45
+   },
+   {
+    "kieu": "lon",
+    "chu": "Chất riêng"
+   },
+   {
+    "kieu": "lon-trang",
+    "chu": "mỗi ngày"
+   }
+  ],
+  "web": "tenhang.vn"
+ }
+}

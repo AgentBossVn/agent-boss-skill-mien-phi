@@ -1,0 +1,9 @@
+# Cổng vẽ ảnh MIỄN PHÍ chạy trên máy bạn: `npx wrangler dev --cwd <thư mục này> --port 8841 --ip 127.0.0.1`
+# Dùng đăng nhập Cloudflare sẵn có của wrangler (`npx wrangler login` 1 lần) — không cần tạo token, KHÔNG deploy lên mạng.
+# Tài khoản Cloudflare có nhiều account → thêm dòng account_id = "<mã 32 ký tự>" (mã account, không phải khoá bí mật).
+name = "cong-ve-anh-mien-phi"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[ai]
+binding = "AI"

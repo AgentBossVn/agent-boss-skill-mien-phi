@@ -1,0 +1,22 @@
+name: Thử skill ảnh quảng cáo trên Windows + Mac
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  thu:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      # Python nào cũng được: bộ thử tự cài Python 3.12 riêng bằng uv như người dùng thật
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Chạy bộ thử
+        run: python kiem-thu/chay-thu.py
