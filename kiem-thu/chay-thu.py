@@ -64,8 +64,9 @@ def giai_doan_1():
     khang_dinh(ma == 0 and 'Công cụ vẽ trên máy này' in ra, 'kiem-cong-cu-ve.py chạy, in tiếng Việt qua ống', ra)
     hang = [l for l in ra.splitlines() if l.startswith('| ') and not l.startswith('| Công cụ ') and not l.startswith('|---')]
     khang_dinh(len(hang) == 8, f'bảng có Máy nền + 7 dòng công cụ (thấy {len(hang)})', ra)
-    if WIN: khang_dinh('export PATH' not in ra and 'brew' not in ra and '$env:' in ra, 'Windows: lệnh in ra là PowerShell (không export PATH, không brew)', ra)
-    else: khang_dinh('$env:' not in ra and 'Start-Process' not in ra, 'Mac: lệnh in ra không lẫn PowerShell', ra)
+    khang_dinh('$env:' not in ra and 'export PATH' not in ra and 'Start-Process' not in ra and 'brew' not in ra and '\\scripts\\' not in ra and 'scripts\\' not in ra,
+               'lệnh in ra không riêng của shell nào (không $env:, export PATH, Start-Process, brew, dấu \\ trong đường dẫn)', ra)
+    if WIN: khang_dinh('py -3 "' in ra or 'python "' in ra, 'Windows: lệnh gọi máy kiểm qua py -3 (không dính "python" giả của Store)', ra)
     cam = re.findall(r'\|\s*(?:sh|bash|iex)\b|curl -|@latest|brew install|Notepad', ra)
     khang_dinh(not cam, f'không dòng lệnh nào tải-rồi-chạy-ngay / @latest / brew install / Notepad (thấy: {cam})', ra)
     khoa_txt = (SCRIPTS / 'khoa-thu-vien.txt').read_text(encoding='utf-8')
