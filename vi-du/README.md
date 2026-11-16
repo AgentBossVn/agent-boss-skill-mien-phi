@@ -15,6 +15,10 @@ Skill giữ cho sản phẩm ĐÚNG ở mọi đường (đúng nhãn, đúng ch
 | ⭐⭐⭐ | **Cloudflare miễn phí** | 0đ, khoảng 40 ảnh/ngày | Vẽ cảnh bàn có đạo cụ rồi ghép sản phẩm thật vào: sản phẩm đúng 100%, cảnh khá thật. Chỉ hợp sản phẩm đặt trên bàn/kệ; vẽ người, tay thì hay hỏng. |
 | ⭐⭐ | **Không dùng AI vẽ** (Agent tự dựng bằng code) | 0đ | Ảnh đồ hoạ: sản phẩm thật đặt trên bục, nền màu, có chữ. Sạch, dễ đọc nhất, nhưng giống banner sàn thương mại, KHÔNG có cảnh đời thật. |
 
+## Cả 6 đường trong 1 ảnh
+
+[<img src="anh/so-sanh-6-duong.jpg" width="700">](anh/so-sanh-6-duong.jpg)
+
 ## Ảnh thật từng đường
 
 Cùng một sản phẩm (sách "Tổ chức và Đám đông"), cùng thông điệp, cùng cỡ 4:5, làm ngày 16/11/2026. Bấm vào ảnh để xem to.
