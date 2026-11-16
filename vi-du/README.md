@@ -9,7 +9,7 @@ Skill giữ cho sản phẩm ĐÚNG ở mọi đường (đúng nhãn, đúng ch
 | Mức đẹp | Đường vẽ | Bạn tốn gì | Ảnh ra thế nào |
 |---|---|---|---|
 | ⭐⭐⭐⭐⭐ | **Gói ChatGPT Plus/Pro** (Codex vẽ) | 0đ thêm nếu đang trả gói | Cảnh đời thật, có người, tay cầm, ánh sáng tự nhiên. Đẹp nhất trong các đường đã đo. |
-| ⭐⭐⭐⭐ (chưa đo được) | **Gói Google AI Pro/Ultra** (Antigravity vẽ) | 0đ thêm nếu đang trả gói; lượt vẽ theo tuần hay cạn | Cảnh đời thật, chữ Việt đúng dấu. Chưa đo được xem có giữ đúng sản phẩm không, vì cả ngày 15/11 lẫn 16/11/2026 gói đều báo hết lượt vẽ của tuần (số sao này là tạm chấm). |
+| ⭐⭐⭐⭐ | **Gói Google AI Pro/Ultra** (Antigravity vẽ) | 0đ thêm nếu đang trả gói; lượt vẽ theo tuần hay cạn | Cảnh đời thật, tên sách và tên tác giả trên bìa đúng hết. Thua ChatGPT ở chỗ ảnh nhỏ (khoảng 0,8 triệu điểm ảnh) và có dấu ngôi sao Gemini ở góc dưới. |
 | ⭐⭐⭐⭐⭐ | **Trả tiền theo ảnh** (Gemini API, Seedream 5.5) | khoảng 1.000–1.300đ/ảnh | Cảnh đời thật, ảnh có độ phân giải 2K. Đo Gemini API ngày 16/11/2026: ảnh đẹp ngang gói ChatGPT, tên sách trên bìa đúng hết. Seedream 5.5 chưa đo. |
 | ⭐⭐⭐⭐ | **Seedream 4.5** (200 ảnh đầu miễn phí) | 0đ cho 200 ảnh đầu, cần thẻ để kích hoạt | Cảnh đời thật, đẹp thứ hai sau ChatGPT; nhưng chữ trên sản phẩm hay sai (bìa sách sai 5 chỗ), skill phải dán bìa/nhãn thật đè lên. |
 | ⭐⭐⭐ | **Cloudflare miễn phí** | 0đ, khoảng 40 ảnh/ngày | Vẽ cảnh bàn có đạo cụ rồi ghép sản phẩm thật vào: sản phẩm đúng 100%, cảnh khá thật. Chỉ hợp sản phẩm đặt trên bàn/kệ; vẽ người, tay thì hay hỏng. |
@@ -24,7 +24,7 @@ Cùng một sản phẩm (sách "Tổ chức và Đám đông"), cùng thông đ
 | Đường vẽ | Ảnh | Skill đã làm gì |
 |---|---|---|
 | Gói ChatGPT | [<img src="anh/chatgpt.jpg" width="300">](anh/chatgpt.jpg) | Vẽ 2 bản, giữ bản tay cầm tự nhiên hơn. Tên sách, tên tác giả, gáy đúng hết, không phải dán; chỉ câu trích li ti trên bìa bị sai chữ (lướt điện thoại không đọc tới). ~80 giây/ảnh. Người xem thử chấm ảnh này thuyết phục nhất. |
-| Gói Gemini | (đang bổ sung: ngày 16/11/2026 thử thì gói báo hết lượt vẽ của tuần) | |
+| Gói Gemini | [<img src="anh/gemini.jpg" width="300">](anh/gemini.jpg) | Antigravity báo hết lượt vẽ của tuần nên ảnh này vẽ trong ứng dụng Gemini trên web (tài khoản Google Workspace), cùng ảnh mẫu và lời nhờ. Tên sách, tên tác giả, gáy sách đều đúng, không phải dán; logo nhà xuất bản li ti ở chân bìa bị vẽ sai. Ảnh ra 825×1024, có dấu ngôi sao Gemini ở góc phải dưới. |
 | Trả tiền theo ảnh (Gemini API) | [<img src="anh/gemini-api.jpg" width="300">](anh/gemini-api.jpg) | Vẽ 2 bản, tốn 0,10 USD; giữ bản có cuốn sách nằm thấp để chừa chỗ đặt chữ. Tên sách, tên tác giả và gáy sách đều đúng, không cần dán chữ lên. Chỉ có logo nhà xuất bản li ti ở chân bìa bị vẽ sai; nửa bìa màu đen hơi ngả xanh. |
 | Seedream 4.5 | [<img src="anh/seedream.jpg" width="300">](anh/seedream.jpg) | Cảnh đẹp, nhưng AI viết sai 5 chỗ trên bìa ("ĐÂM ĐÔNG", "Mai Xuân Dạt", "Hởn loạn", gáy "Moi Xuân Dot"). Skill dán bìa trước + gáy thật đè lên, giữ ngón cái. |
 | Cloudflare miễn phí (cảnh trống + ghép) | [<img src="anh/cloudflare.jpg" width="300">](anh/cloudflare.jpg) | AI chỉ vẽ bàn làm việc có tách cà phê, kính, sổ, cây; skill đặt cuốn sách thật vào giữa, ám màu sách theo ánh sáng cảnh, bóng bám đúng mép đáy. Sách đúng 100%, nhìn kỹ vẫn biết là ảnh ghép. |

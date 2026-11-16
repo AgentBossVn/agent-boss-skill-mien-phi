@@ -51,7 +51,7 @@ metadata:
 | Tầng · đường | Tiền | Cần | Ảnh ra (đo thật 14–15/11/2026) |
 |---|---|---|---|
 | **1 · Gói ChatGPT — Codex tự vẽ** | 0đ thêm, trừ hạn mức gói | Gói Plus/Pro + Codex CLI đăng nhập bằng tài khoản ChatGPT | Đẹp nhất đã đo: người, tay, chữ nhãn gần đúng; ~1–2,5 phút/ảnh |
-| **1 · Gói Gemini — Antigravity tự vẽ** | 0đ thêm, trừ hạn mức vẽ ảnh của gói (trần TUẦN riêng, hay cạn) | Gói Google AI Pro/Ultra + Antigravity CLI (`agy`) đã đăng nhập | ~1K, chữ Việt đúng dấu, nhận ảnh tham chiếu; **CHƯA đo được có giữ đúng hình sản phẩm không** (hết lượt tuần cả 15/11 lẫn 16/11) |
+| **1 · Gói Gemini — Antigravity tự vẽ** | 0đ thêm, trừ hạn mức vẽ ảnh của gói (trần TUẦN riêng, hay cạn) | Gói Google AI Pro/Ultra + Antigravity CLI (`agy`) đã đăng nhập | ~1K (sách: 825×1024), chữ Việt đúng dấu, nhận ảnh tham chiếu; giữ đúng bìa sách, chỉ sai chữ li ti (đo 16/11/2026 qua ứng dụng Gemini vì Antigravity hết lượt tuần); ảnh có dấu ngôi sao Gemini ở góc |
 | **1 · Claude tự dựng bằng code** | 0đ | Chỉ cần máy nền | Sản phẩm + nhãn đúng 100% (ảnh thật) đặt trên cảnh dựng sẵn: bục, đèn rọi, bóng, phản chiếu, 3 kiểu; ra kiểu ảnh đồ hoạ như banner sàn thương mại, KHÔNG có cảnh chụp đời thật; ~10 giây/ảnh |
 | **2 · Seedream 4.5 (BytePlus, ByteDance)** | 200 ảnh miễn phí, sau đó ~0,04 USD/ảnh | Tài khoản BytePlus + thẻ/PayPal để kích hoạt (bật "chỉ dùng phần miễn phí") | Thứ 2 sau ChatGPT; chữ nhỏ hay sai ("336 g" → "136 g") ⇒ bắt buộc qua máy đọc chữ |
 | **2 · Cloudflare** | 0đ, ~40 ảnh/ngày | Tài khoản Cloudflare miễn phí + Node | ~1K, người/tay hay hỏng, hay bị chặn với sản phẩm màu đen / bao bì in người ⇒ dùng kiểu "cảnh trống + ghép sản phẩm thật": cảnh bàn có đạo cụ + sản phẩm thật ra khá (sách 16/11/2026) |
