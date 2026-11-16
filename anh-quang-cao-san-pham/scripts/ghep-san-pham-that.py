@@ -29,6 +29,10 @@ ti = h / vat.height  # >0,8 = hiện gần bằng / to hơn ảnh gốc → mờ
 if ti > 0.8:
     print(f'CẢNH BÁO sản phẩm hiện bằng {ti:.0%} cỡ ảnh gốc ({vat.width}x{vat.height}) → sẽ MỜ. '
           f'Hạ --cao xuống ≤ {0.8 * vat.height / H:.2f}, hoặc xin ảnh hãng to + nét hơn (chụp sản phẩm thật, file thiết kế bao bì).')
+toi_thieu = 0.5 if W > H * 1.2 else 0.36 if H > W * 1.5 else 0.42  # ảnh học viên 16/11: sách cao 33–40% khung trên bàn trống → "xấu", khách không thấy sản phẩm
+if a.cao < toi_thieu:
+    print(f'CẢNH BÁO sản phẩm NHỎ: cao {a.cao:.0%} khung (ảnh {W}x{H} nên ≥ {toi_thieu:.0%}). Lướt điện thoại sẽ không thấy sản phẩm. '
+          'Tăng --cao; cảnh không cho phép (sản phẩm to quá so với đồ vật quanh) → vẽ lại cảnh CẬN hơn (máy đặt thấp, sát mặt bàn), KHÔNG giao ảnh có cảnh báo này.')
 vat = vat.resize((w, h), Image.LANCZOS)
 x = round(W * a.tam_x - w / 2); y = round(H * a.day_y - h)
 alpha = vat.getchannel('A')
