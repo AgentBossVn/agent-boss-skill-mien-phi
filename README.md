@@ -85,7 +85,7 @@ Lần đầu dùng, Agent hỏi bạn tên shop/kênh, màu, logo, câu kêu g�
 
 **Tốn bao nhiêu:** dựng video tốn 0đ, chạy hoàn toàn trên máy bạn bằng ffmpeg. Giọng đọc AI dùng dịch vụ miễn phí của Microsoft (cần mạng). Phần việc của Agent tính vào hạn mức gói Agent bạn đang dùng.
 
-**Cần gì trên máy:** ffmpeg và Python. Agent tự kiểm tra, cho bạn xem danh sách cần cài và hỏi bạn đồng ý rồi mới cài. Lần đầu làm phụ đề, máy sẽ tải mô hình nghe tiếng Việt khoảng 800 MB.
+**Cần gì trên máy:** ffmpeg và Python. Agent tự kiểm tra, cho bạn xem danh sách cần cài và hỏi bạn đồng ý rồi mới cài. Lần đầu làm phụ đề, máy sẽ tải mô hình nghe tiếng Việt khoảng 1,5 GB.
 
 Cài skill video giống như skill ảnh, ví dụ:
 

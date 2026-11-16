@@ -3,7 +3,7 @@ name: video-ghep-nhac-vlog
 description: Ghép các clip đời sống, du lịch, ăn uống, một ngày làm việc (không cần lời nói) thành video TikTok/Reels dọc cắt khớp nhịp nhạc, đăng được ngay — tự chọn cảnh đẹp, mỗi cảnh đổi đúng phách nhạc, chữ dẫn chuyện ngắn. Dùng khi người dùng có nhiều clip quay cảnh và muốn "ghép thành video", "làm vlog", "video theo nhạc".
 metadata:
   author: Mai Xuân Đạt — Agent Boss
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Video ghép nhạc / vlog
@@ -37,11 +37,11 @@ Lệnh Python: macOS dùng `python3`, **Windows dùng `py -3`** (không gõ `pyt
 python3 <SKILL>/scripts/kiem_tra.py
 ```
 
-- `thieu_bat_buoc` không rỗng → cho người dùng xem danh sách sẽ cài, hỏi **một câu** "Bạn đồng ý cài những thứ này không?", đồng ý rồi mới chạy. Windows chưa có Python: `winget install -e --id Python.Python.3.12 --scope user`. Cài ffmpeg xong trên Windows phải mở lại cửa sổ lệnh (hoặc khởi động lại Agent) để nhận lệnh `ffmpeg`.
-- `thieu_tuy_chon` → chỉ cài khi cần: `faster-whisper` cho phụ đề từ lời nói (lần đầu tự tải model ~800 MB), `edge-tts` cho giọng đọc AI.
+- `thieu_bat_buoc` không rỗng → cho người dùng xem danh sách sẽ cài, hỏi **một câu** "Bạn đồng ý cài những thứ này không?", đồng ý rồi mới chạy. Cài ffmpeg xong trên Windows phải mở lại cửa sổ lệnh (hoặc khởi động lại Agent) để nhận lệnh `ffmpeg`.
+- Thư viện Python **không** cài bằng `pip install --user` (macOS cài Python qua Homebrew sẽ từ chối). Lệnh `kiem_tra.py --cai` tự tạo Python riêng cho skill ở `~/.agent-boss/python` rồi cài vào đó; từ đó gõ `python3 <SKILL>/scripts/...` như thường, script tự chạy bằng Python riêng. Lệnh này cần Python 3.10–3.13 trên máy (bản mới hơn chưa chạy được thư viện nghe lời nói); không có thì nó in lệnh cài Python 3.12 (macOS: `brew install python@3.12`, Windows: `winget install -e --id Python.Python.3.12 --scope user`).
+- `thieu_tuy_chon` → chỉ cài khi cần: `faster-whisper` cho phụ đề từ lời nói (lần đầu tự tải model ~1,5 GB, mất vài phút, chưa in gì ra là bình thường), `edge-tts` cho giọng đọc AI, `--cai-font` cho font Be Vietnam Pro (nên cài: không có thì chữ dùng Arial mảnh).
 - `cap_nhat.co_ban_moi` là true → báo **một câu**: "Có bản mới {moi_nhat} của skill này. Cập nhật không?". Người dùng đồng ý thì làm đúng việc ghi ở `cau_cap_nhat`. **Không tự cập nhật.** `cap_nhat` là null thì bỏ qua, dựng bình thường.
 - `cap_nhat.skill_khac_chua_cai` có tên → nhắc **một dòng** ở cuối câu trả lời: "Kho Agent Boss còn có: …". Chỉ nhắc một lần trong phiên.
-- Font: nếu chữ lỗi dấu hoặc trông xấu, chạy `python3 <SKILL>/scripts/kiem_tra.py --cai-font` (tải Be Vietnam Pro từ Google Fonts).
 
 ### Bước 1. Hồ sơ thương hiệu (chỉ lần đầu)
 
@@ -71,17 +71,18 @@ Thư mục làm việc: tạo `video-<ngày>-<tên ngắn>/` cạnh video của 
   "chu": [{"tu": 0, "den": 2.6, "noi_dung": "ĐỪNG MUA NỒI CHIÊN NẾU CHƯA XEM", "kieu": "mo_dau"}],
   "giong_doc": null,
   "nhac": null,
-  "sua_chu": {"cờ lốt": "Claude"},
+  "sua_chu": {"cờ lốt": "Claude", "dịch ứng": "dị ứng"},
   "tu_khoa": ["giảm giá", "miễn phí"],
   "the_ket": true
 }
 ```
 
-- `doan`: giây trên video gốc, theo đúng thứ tự muốn xuất hiện. Đường dẫn tính từ thư mục chứa `ke-hoach.json`.
+- `doan`: giây trên video gốc, theo đúng thứ tự muốn xuất hiện. Đường dẫn tính từ thư mục chứa `ke-hoach.json`. Đặt `tu` đúng giờ chữ đầu câu trong `loi_noi` (lùi chừng 0,05 giây), đặt `den` ngay sau chữ cuối: đặt lệch là kéo theo nửa chữ của câu bên cạnh.
 - `chu`: giây trên **video mới**. `"den": "het"` là tới cuối phần thân. `kieu` lấy theo bảng kiểu chữ của skill này.
 - `giong_doc`: `{"van_ban": "...", "giong": "vi-VN-HoaiMyNeural"}` (nữ) hoặc `vi-VN-NamMinhNeural` (nam). Viết lời đọc như người nói chuyện, câu ngắn. Khoảng 3,5 chữ mỗi giây.
 - `nhac`: bỏ trống thì dùng nhạc trong hồ sơ thương hiệu; không có thì không lót nhạc. **Chỉ dùng nhạc người dùng có quyền dùng.** Video đã có nhạc sẵn thì để `"nhac": null`.
-- `sua_chu`: máy nghe sai chữ nào (tên riêng, tên sản phẩm, từ tiếng Anh) thì sửa ở đây. Đọc kỹ `van_ban` trong phân tích để bắt lỗi.
+- `sua_chu`: máy nghe sai chữ nào (tên riêng, tên sản phẩm, từ tiếng Anh) thì sửa ở đây. Đọc kỹ `van_ban` trong phân tích để bắt lỗi. Khoá viết đúng như máy nghe, được nhiều chữ; nên ghi cả cụm (`"dịch ứng"`) thay vì 1 chữ (`"dịch"`) để không sửa nhầm chỗ khác. Chữ sửa có chữ hoa ở giữa (`OKRs`, `iPhone`) giữ nguyên kiểu viết, còn lại (kể cả `Claude`) viết hoa như phụ đề.
+- `vi_tri_phu_de` (tuỳ chọn): vị trí phụ đề theo chiều cao, 0–1. Video quay cận mặt mà phụ đề che miệng thì đặt `0.75`; không đặt số lớn hơn `0.78` (sát đáy sẽ đè tên kênh, chú thích của TikTok).
 
 Muốn biết giờ từng cụm phụ đề trên video mới (để đặt chữ cho khớp lời): `python3 <SKILL>/scripts/dung.py ke-hoach.json --chi-thoi-gian`.
 

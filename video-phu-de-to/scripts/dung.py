@@ -9,11 +9,12 @@
 #   "giong_doc": {"van_ban": "...", "giong": "vi-VN-HoaiMyNeural"} hoặc {"file": "loi.mp3"},   tuỳ chọn
 #   "nhac": "nhac.mp3",  "sua_chu": {"chữ sai": "chữ đúng"},  "tu_khoa": ["giảm giá"],  "the_ket": true,
 #   "thuong_hieu": "đường/dẫn/thuong-hieu.json"   (bỏ trống = ~/.agent-boss/thuong-hieu.json)
+#   "vi_tri_phu_de": 0.75   (tuỳ chọn, 0–1 theo chiều cao: dời phụ đề khi che miệng/mặt)
 # }
 import asyncio, json, os, re, shutil, sys
+from chung import W, H, FPS, ENC, AENC, run, duong_ff, doc_json, ghi_json, thong_tin, preset, thuong_hieu, mau, tim_font, log  # nạp trước: tự đổi sang Python riêng
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from chung import W, H, FPS, ENC, AENC, run, duong_ff, doc_json, ghi_json, thong_tin, preset, thuong_hieu, mau, tim_font, log
 from phan_tich import cho_lang
 
 KH_PATH = os.path.abspath(sys.argv[1])
@@ -81,7 +82,8 @@ def tim_nhip(nhac):
 
 
 segs, t = [], 0.0   # (file, a, b, ra_a)
-for d in KH['doan']:
+SEG_DOAN = []   # khúc thứ i thuộc đoạn nào trong kế hoạch (phụ đề không ghép chữ của hai đoạn khác nhau)
+for so_doan, d in enumerate(KH['doan']):
     f = duong(d['file'])
     tt = thong_tin(f)
     a, b = float(d.get('tu', 0)), min(float(d.get('den', tt['dai'])), tt['dai'])
@@ -93,6 +95,7 @@ for d in KH['doan']:
         khuc = [(fr(a), fr(b))]
     for x, y in khuc:
         segs.append([f, x, y, t])
+        SEG_DOAN.append(so_doan)
         t += y - x
 
 NHAC = duong(KH['nhac']) if KH.get('nhac') else (TH.get('nhac') and os.path.expanduser(TH['nhac']))
@@ -131,7 +134,7 @@ def tts(gd):
     try:
         import edge_tts
     except ImportError:
-        raise SystemExit('Cần giọng đọc AI: pip install edge-tts')
+        raise SystemExit('Cần giọng đọc AI: python3 scripts/kiem_tra.py --cai edge-tts')
     mp3 = os.path.join(TMP, 'giong-doc.mp3')
     chu = []
 
@@ -153,29 +156,47 @@ def tts(gd):
 
 
 GIONG, TRE_GIONG = None, 0.3
-words = []   # [giây mới, chữ]
+words = []   # [giây mới, chữ, số đoạn trong kế hoạch]
 if KH.get('giong_doc'):
     GIONG, wv = tts(KH['giong_doc'])
-    words = [[TRE_GIONG + s, tu] for s, e, cum in wv for tu in cum.split()]
+    words = [[TRE_GIONG + s, tu, 0] for s, e, cum in wv for tu in cum.split()]
 elif PD.get('bat', True) and P.get('giu_tieng_goc', True):
-    for f, a, b, ra in segs:
+    da_lay = set()
+    for k, (f, a, b, ra) in enumerate(segs):
         for ws, we, x in (phan_tich_cua(f).get('loi_noi') or []):
-            if a - 0.05 <= ws < b:
-                words.append([ra + max(0, ws - a), x])
+            # máy nghe hay ghi giờ đầu chữ sớm hơn thật → chữ bắt đầu trong chỗ lặng đã cắt mà còn ≥ 0,1 giây tiếng trong khúc vẫn giữ
+            if (SEG_DOAN[k], ws) not in da_lay and (a - 0.05 <= ws < b or (ws < a and min(we, b) - a >= 0.1)):
+                da_lay.add((SEG_DOAN[k], ws))
+                words.append([ra + max(0, ws - a), x, SEG_DOAN[k]])
 words.sort(key=lambda w: w[0])
+# sửa chữ máy nghe sai, khoá được nhiều chữ ("dịch ứng" → "dị ứng"); khoá dài khớp trước
+CUM_SUA = sorted(([norm(k) for k in k_.split()], v) for k_, v in KH.get('sua_chu', {}).items() if k_.split())
+CUM_SUA.sort(key=lambda kv: -len(kv[0]))
+moi, i = [], 0
+while i < len(words):
+    for ks, v in CUM_SUA:
+        if [norm(w[1]) for w in words[i:i + len(ks)]] == ks:
+            dau = re.sub(r'^.*?([,.?!]*)$', r'\1', words[i + len(ks) - 1][1])   # giữ dấu câu cuối cụm
+            moi += [[words[min(i + j, i + len(ks) - 1)][0], x, words[i][2]] for j, x in enumerate(v.split())]
+            if moi and v.split():
+                moi[-1][1] += dau
+            i += len(ks)
+            break
+    else:
+        moi.append(words[i])
+        i += 1
+words = moi
 for i in range(1, len(words)):
     words[i][0] = max(words[i][0], words[i - 1][0] + 0.12)
-DA_SUA = set()   # chữ đã sửa giữ nguyên kiểu viết (OKRs, iPhone), không viết hoa toàn bộ
-for w in words:
-    if norm(w[1]) in SUA:
-        w[1] = SUA[norm(w[1])] + re.sub(r'^.*?([,.?!]*)$', r'\1', w[1])
-words = [[s, x] for s, t_ in words for x in t_.split()]
-DA_SUA = {norm(v) for v in SUA.values()} | {norm(x) for v in SUA.values() for x in v.split()}
+# chữ có hoa thường lẫn lộn (OKRs, iPhone) giữ nguyên kiểu viết, không viết hoa toàn bộ
+DA_SUA = {norm(x) for v in SUA.values() for x in v.split() if any(c.isupper() for c in x[1:]) and not x.isupper()}
+TEN_SUA = {norm(x) for v in SUA.values() for x in v.split() if x[:1].isupper()}   # chữ từ sua_chu (tên riêng) không coi là đầu câu
 words = [w for w in words if w[0] < THAN - 0.1]
 
 TU_GHEP = ['các bạn', 'chúng ta', 'mọi người', 'sử dụng', 'quan trọng', 'cực kỳ', 'ví dụ', 'sau đó', 'bây giờ', 'hôm nay',
            'chia sẻ', 'sản phẩm', 'giảm giá', 'miễn phí', 'chất lượng', 'giỏ hàng', 'đặt hàng', 'khách hàng', 'công việc',
-           'bắt đầu', 'làm việc', 'tại sao', 'là gì', 'như thế', 'thế nào', 'vì vậy', 'cho nên', 'trở thành', 'nghìn đồng']
+           'bắt đầu', 'làm việc', 'tại sao', 'là gì', 'như thế', 'thế nào', 'vì vậy', 'cho nên', 'trở thành', 'nghìn đồng',
+           'xã hội', 'nhân viên', 'phát triển', 'năng lực', 'giá trị', 'quản lý']
 TU_GHEP += [v.lower() for v in SUA.values() if ' ' in v.strip()]
 low = [norm(w[1]) for w in words]
 hl, bind = [False] * len(low), [False] * len(low)
@@ -193,19 +214,33 @@ for i, w in enumerate(words):   # số tiền, phần trăm luôn nổi bật
         hl[i] = True
 
 toi_da = PD.get('toi_da_chu', 4)
-chunks, cur, units = [], [], 0
-for i, (ts, x) in enumerate(words):
+# 1) cắt lời thành câu: ngắt ở đầu câu, dấu câu, ngừng > 1 giây, và LUÔN ngắt ở chỗ nối hai đoạn khác nhau của kế hoạch
+cau, cur = [], []
+for i, (ts, x, k) in enumerate(words):
     viet_tat = sum(ch.isupper() for ch in x) >= 2   # CEO, OKRs, KPI: không coi là đầu câu
-    cau_moi = x[:1].isupper() and not viet_tat
-    dinh = i > 0 and bind[i - 1] and cur
-    if cur and not dinh and (units >= toi_da - 1 or len(cur) >= toi_da or cau_moi or ts - words[cur[0]][0] > 1.5
-                             or words[cur[-1]][1][-1] in '?,.!'):
-        chunks.append(cur)
-        cur, units = [], 0
+    # tên riêng nhiều chữ (Việt Nam) và chữ lấy từ sua_chu (Claude) không coi là đầu câu
+    cau_moi = x[:1].isupper() and not viet_tat and norm(x) not in TEN_SUA and not (i > 0 and words[i - 1][1][:1].isupper())
+    if cur and (k != words[i - 1][2] or not bind[i - 1] and (cau_moi or ts - words[i - 1][0] > 1.0 or words[i - 1][1][-1] in '?,.!')):
+        cau.append(cur)
+        cur = []
     cur.append(i)
-    units += 0 if dinh else 1
 if cur:
-    chunks.append(cur)
+    cau.append(cur)
+# 2) chia đều mỗi câu thành cụm ≤ (toi_da - 1) đơn vị (từ ghép tính 1): 4 chữ → 2+2 thay vì 3+1, không để 1 chữ mồ côi
+chunks = []
+for c in cau:
+    dv = []
+    for i in c:
+        if dv and i > 0 and bind[i - 1] and dv[-1][-1] == i - 1:
+            dv[-1].append(i)
+        else:
+            dv.append([i])
+    n = -(-len(dv) // max(1, toi_da - 1))
+    j = 0
+    for m in range(n):
+        co = len(dv) // n + (1 if m < len(dv) % n else 0)
+        chunks.append([i for u in dv[j:j + co] for i in u])
+        j += co
 
 
 def hien(x):
@@ -290,7 +325,7 @@ Image.new('RGBA', (W, H), (0, 0, 0, 0)).save(trong)
 mau_chu_pd = mau(PD['mau']) if PD.get('mau') else CHU
 mau_vien_pd = mau(PD['mau_vien']) if PD.get('mau_vien') else (0, 0, 0, 255)
 nen_pd = mau(PD['nen'][:7], int(PD['nen'][7:9] or 'ff', 16)) if PD.get('nen') else None
-y_pd = int(H * PD.get('vi_tri', 0.69))
+y_pd = int(H * float(KH.get('vi_tri_phu_de') or PD.get('vi_tri', 0.69)))   # kế hoạch dời được khi phụ đề che mặt
 muc = []   # (tên ảnh, giây hiện)
 
 

@@ -3,8 +3,8 @@
 # Ra: <thư-mục-làm-việc>/phan-tich/<tên>.json (độ dài, khung, chỗ lặng, chỗ đổi cảnh, lời nói theo từng chữ)
 #     <thư-mục-làm-việc>/phan-tich/<tên>.jpg  (ảnh lưới: mỗi ô là 1 khung hình kèm giây, để agent nhìn và chọn đoạn đẹp)
 import argparse, glob, os, re, subprocess
+from chung import run, thong_tin, ghi_json, tim_font, log  # nạp trước: tự đổi sang Python riêng
 from PIL import Image, ImageDraw, ImageFont
-from chung import run, thong_tin, ghi_json, tim_font, log
 
 DUOI = ('.mp4', '.mov', '.m4v', '.mkv', '.webm', '.avi')
 
@@ -17,6 +17,21 @@ def cho_lang(path, nguong='-35dB', toi_thieu=0.3):
     if len(en) < len(st):  # lặng kéo tới hết video
         en.append(thong_tin(path)['dai'])
     return [[round(max(0, s), 3), round(e, 3)] for s, e in zip(st, en)]
+
+
+def khoang_ngung(loi, toi_thieu=0.45):
+    """Chỗ ngừng nói lấy từ giờ từng chữ: phòng có tiếng nền (quạt, điều hoà) thì máy dò lặng theo độ ồn bỏ sót."""
+    return [[round(e + 0.05, 3), round(s - 0.05, 3)] for (_, e, _), (s, _, _) in zip(loi, loi[1:]) if s - e >= toi_thieu]
+
+
+def gop_lang(ds):
+    out = []
+    for s, e in sorted(ds):
+        if out and s <= out[-1][1]:
+            out[-1][1] = max(out[-1][1], e)
+        else:
+            out.append([s, e])
+    return out
 
 
 def doi_canh(path, nguong=0.3):
@@ -49,14 +64,17 @@ def anh_luoi(path, dai, ra, so_o=12):
 
 
 def nghe(path, model):
-    """Chuyển lời nói thành chữ, có giờ từng chữ. Cần: pip install faster-whisper (lần đầu tự tải model)."""
+    """Chuyển lời nói thành chữ, có giờ từng chữ. Cần: kiem_tra.py --cai faster-whisper (lần đầu tự tải model ~1,5 GB)."""
     try:
         from faster_whisper import WhisperModel
     except ImportError:
-        log('  Chưa có faster-whisper → bỏ qua phụ đề. Cài: pip install faster-whisper')
+        log('  Chưa có faster-whisper → bỏ qua phụ đề. Cài: python3 scripts/kiem_tra.py --cai faster-whisper')
         return None
+    import numpy as np
+    # tự giải mã tiếng bằng ffmpeg (16 kHz, 1 kênh) thay vì để faster-whisper dùng thư viện av: av 19 làm faster-whisper 1.2.1 lỗi
+    tieng = np.frombuffer(run(['ffmpeg', '-v', 'error', '-i', path, '-vn', '-ac', '1', '-ar', '16000', '-f', 'f32le', '-'], nhi_phan=True).stdout, np.float32)
     m = WhisperModel(model, device='auto', compute_type='int8')
-    segs, _ = m.transcribe(path, language='vi', word_timestamps=True, vad_filter=True)
+    segs, _ = m.transcribe(tieng, language='vi', word_timestamps=True, vad_filter=True)
     return [[round(w.start, 3), round(w.end, 3), w.word.strip()] for s in segs for w in (s.words or []) if w.word.strip()]
 
 
@@ -85,6 +103,7 @@ def main():
             kq['loi_noi'] = nghe(f, a.model)
         if kq['loi_noi']:
             kq['van_ban'] = ' '.join(w[2] for w in kq['loi_noi'])
+            kq['cho_lang'] = gop_lang(kq['cho_lang'] + khoang_ngung(kq['loi_noi']))
         anh_luoi(f, tt['dai'], os.path.join(od, ten + '.jpg'))
         ghi_json(os.path.join(od, ten + '.json'), kq)
         print(os.path.join(od, ten + '.json'))
