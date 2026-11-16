@@ -1,0 +1,16 @@
+{
+  "ten": "mo-hop-san-pham",
+  "cat_lang": false,
+  "khung": "nen-mo",
+  "doi_khung_giay": 0,
+  "giu_tieng_goc": false,
+  "phu_de": {"bat": true, "kieu": "karaoke", "vi_tri": 0.74, "co": 70, "in_hoa": true, "toi_da_chu": 5, "vien": 7, "bong": true},
+  "chu": {
+    "mo_dau": {"vi_tri": 0.17, "co": 92, "mau": "chu", "vien": 10, "xoay": 2},
+    "gia": {"vi_tri": 0.42, "co": 120, "nen": "nhan", "mau": "chinh", "xoay": -3},
+    "nhan": {"vi_tri": 0.17, "co": 70, "nen": "chinh", "mau": "nhan"},
+    "cta": {"vi_tri": 0.6, "co": 74, "nen": "nhan", "mau": "chinh"}
+  },
+  "nhac": {"am_luong": 0.14, "khi_khong_loi": 0.7},
+  "the_ket_giay": 2.5
+}

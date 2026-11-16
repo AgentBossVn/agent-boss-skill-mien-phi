@@ -2,7 +2,16 @@
 
 Đây là nơi Agent Boss chia sẻ các skill cho bạn mang về dùng. Hiểu đơn giản thì skill là bộ hướng dẫn kèm công cụ để Agent trên máy bạn (như Claude Code, Codex hay Antigravity) tự làm trọn một việc từ đầu đến cuối.
 
-Hiện tại kho có 1 skill là **Ảnh quảng cáo sản phẩm** nằm trong thư mục `anh-quang-cao-san-pham`. Các skill khác mình sẽ thêm dần vào đây.
+Hiện tại kho có các skill sau. Bạn thích skill nào thì cài skill đó, không cần cài hết:
+
+| Skill | Làm gì |
+|---|---|
+| `anh-quang-cao-san-pham` | Ảnh quảng cáo có sản phẩm thật, đúng từng chữ trên nhãn |
+| `video-phu-de-to` | Video bạn nói chuyện, chia sẻ → cắt chỗ lặng, phụ đề chữ to, nhạc nền, đăng TikTok được ngay |
+| `video-mo-hop-san-pham` | Clip quay sản phẩm → video bán hàng có giọng đọc AI, chữ giá, lời kêu gọi bấm giỏ hàng |
+| `video-ghep-nhac-vlog` | Nhiều clip cảnh đời sống → video ghép cắt đúng nhịp nhạc |
+
+Các skill khác mình sẽ thêm dần vào đây.
 
 ## Skill "Ảnh quảng cáo sản phẩm" làm gì?
 
@@ -60,6 +69,31 @@ Nếu là sản phẩm của chính bạn và trên mạng chưa có ảnh, Agen
 ## Một vài điều cần nhớ
 
 Ảnh sản phẩm sẽ được gửi sang dịch vụ vẽ mà bạn chọn, vì vậy bạn đừng đưa những sản phẩm chưa công bố vào làm. Nếu có dùng khoá API, bạn nhập vào ô kín do Agent mở ra, tuyệt đối không dán thẳng vào khung chat.
+
+## Các skill video làm gì?
+
+Bạn đưa video thô vào (video tự quay đang nói, clip sản phẩm, clip cảnh đời sống), Agent dựng ra video dọc 9:16 đăng TikTok, Reels, Shorts được ngay, kèm ảnh bìa và chú thích có hashtag. Mỗi skill là một kiểu dựng khác nhau.
+
+Khi nhận việc, Agent sẽ:
+- Xem video của bạn: chỗ nào lặng, chỗ nào đổi cảnh, bạn nói gì (chuyển lời nói thành chữ ngay trên máy bạn, không gửi video đi đâu).
+- Chọn đoạn hay nhất, đưa câu gây tò mò lên 3 giây đầu.
+- Làm phụ đề tiếng Việt, tô màu từ khoá; với video sản phẩm thì viết lời và đọc bằng giọng AI.
+- Lót nhạc nền bạn có quyền dùng, gắn thẻ kết có tên và lời kêu gọi của bạn.
+- Tự xem lại từng khung hình (chữ tràn mép, sai dấu) rồi mới đưa bạn duyệt.
+
+Lần đầu dùng, Agent hỏi bạn tên shop/kênh, màu, logo, câu kêu gọi và lưu vào `~/.agent-boss/thuong-hieu.json`. Các lần sau và các skill khác của Agent Boss dùng lại, bạn không phải nhập lại.
+
+**Tốn bao nhiêu:** dựng video tốn 0đ, chạy hoàn toàn trên máy bạn bằng ffmpeg. Giọng đọc AI dùng dịch vụ miễn phí của Microsoft (cần mạng). Phần việc của Agent tính vào hạn mức gói Agent bạn đang dùng.
+
+**Cần gì trên máy:** ffmpeg và Python. Agent tự kiểm tra, cho bạn xem danh sách cần cài và hỏi bạn đồng ý rồi mới cài. Lần đầu làm phụ đề, máy sẽ tải mô hình nghe tiếng Việt khoảng 800 MB.
+
+Cài skill video giống như skill ảnh, ví dụ:
+
+```text
+Cài skill video-phu-de-to từ https://github.com/AgentBossVn/agent-boss-skills
+```
+
+Rồi nhắn: `Dựng video này đăng TikTok: <đường dẫn video>`. Chỉ dùng nhạc, hình, logo mà bạn có quyền dùng.
 
 ## Điều khoản sử dụng
 
