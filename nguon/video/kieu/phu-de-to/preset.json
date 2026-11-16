@@ -1,0 +1,16 @@
+{
+  "ten": "phu-de-to",
+  "cat_lang": true,
+  "dem_cat": 0.08,
+  "khung": "cat",
+  "doi_khung_giay": 4.2,
+  "zoom": 1.22,
+  "giu_tieng_goc": true,
+  "phu_de": {"bat": true, "kieu": "cum", "vi_tri": 0.69, "co": 84, "co_to": 118, "in_hoa": true, "toi_da_chu": 4, "vien": 9, "bong": true, "nghieng_chu_to": true},
+  "chu": {
+    "mo_dau": {"vi_tri": 0.2, "co": 88, "mau": "chu", "vien": 9},
+    "nhan": {"vi_tri": 0.2, "co": 72, "nen": "nhan", "mau": "chinh"}
+  },
+  "nhac": {"am_luong": 0.16, "khi_khong_loi": 0.6},
+  "the_ket_giay": 2.5
+}
