@@ -18,6 +18,8 @@ Khi nhận việc, Agent sẽ tự làm các bước:
 
 ## Vẽ bằng gì và tốn bao nhiêu?
 
+**Xem ảnh ví dụ trước khi chọn: [cùng một sản phẩm, mỗi đường vẽ ra đẹp tới đâu](vi-du/README.md).** Muốn ảnh đẹp như ảnh chụp thì cần gói ChatGPT, gói Gemini hoặc trả tiền theo ảnh; chỉ dùng đường 0đ thì ảnh ra kém hẳn.
+
 Agent sẽ tự kiểm tra máy của bạn rồi in ra một bảng cho bạn chọn công cụ. Công cụ nào chưa có trên máy thì Agent sẽ cho bạn xem danh sách cần cài (lấy từ nguồn chính thức, đúng phiên bản đã kiểm tra), hỏi bạn đồng ý rồi mới cài. Bạn chỉ cần làm những bước bắt buộc người làm như đăng nhập.
 
 - **Ưu tiên gói AI bạn đang trả tiền, không tốn thêm chi phí:** dùng gói ChatGPT Plus/Pro (qua Codex, cho ảnh đẹp nhất mà mình đã đo), gói Google AI Pro (qua Antigravity), hoặc để Agent tự dựng ảnh bằng code từ ảnh thật của sản phẩm (tốn 0đ, sản phẩm đúng 100%, đặt trên cảnh có bục, đèn, bóng đổ; ra kiểu ảnh đồ hoạ như banner sàn thương mại chứ không phải ảnh chụp đời thật).
