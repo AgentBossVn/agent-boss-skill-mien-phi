@@ -242,7 +242,7 @@ bang.append(('3. Claude tự dựng bằng code (đúng 100% sản phẩm, nhưn
 # --- 4. Seedream 4.5 qua BytePlus ModelArk (ByteDance): 200 ảnh miễn phí
 co_bp = bool(os.environ.get('ARK_API_KEY')) or co_khoa_keyring('byteplus') or (os.path.exists(KHOA_BYTEPLUS) and os.path.getsize(KHOA_BYTEPLUS) > 20) \
     or (mac and chay(['security', 'find-generic-password', '-s', 'byteplus-ark-claude-thu-anh'])[0] == 0)
-bang.append(('4. Seedream 4.5 (BytePlus, hãng ByteDance) — ảnh thứ 2 sau ChatGPT', '200 ảnh miễn phí; sau đó ~0,04 USD/ảnh. Cần thẻ Visa/Master hoặc PayPal để KÍCH HOẠT (chưa trừ tiền)',
+bang.append(('4. Seedream 4.5 (BytePlus, hãng ByteDance) — cảnh đẹp nhưng hay vẽ sai dáng/chữ sản phẩm (skill dán nhãn thật hoặc ghép sản phẩm thật)', '200 ảnh miễn phí; sau đó ~0,04 USD/ảnh. Cần thẻ Visa/Master hoặc PayPal để KÍCH HOẠT (chưa trừ tiền)',
              '✅ đã có khoá' if co_bp else '⚠️ chưa có khoá',
              [] if co_bp else [KIEM + ' --mo https://console.byteplus.com/ark/region:ap-southeast-1/openManagement', KIEM + ' --nhap-khoa byteplus'],
              [] if co_bp else ['đăng ký BytePlus, BẬT "Free Credits Only Mode" (chỉ dùng phần miễn phí), thêm thẻ/PayPal, bấm Activate dòng Seedream 4.5',
@@ -280,7 +280,7 @@ print('# Công cụ vẽ trên máy này — xếp theo thứ tự nên dùng\n(
       f'Python riêng của skill (mọi lệnh `python` trong SKILL.md = đường này): {SLASH(PY)}\n'
       'Mọi dòng "Agent chạy" bên dưới chạy được ở cả bash (Git Bash) lẫn PowerShell.\n')
 print('**Nói trước về độ đẹp:** muốn ảnh đẹp như ảnh chụp → gói ChatGPT (1), gói Gemini (2) hoặc đường trả tiền (4 sau 200 ảnh, 6). '
-      'Đường 0đ (3, 5) ra ảnh kém hẳn, chỉ dùng tạm. Ảnh ví dụ từng đường: https://github.com/AgentBossVn/agent-boss-skills/tree/main/vi-du\n')
+      'Đường 0đ (3, 5) ra ảnh kém hẳn, chỉ dùng tạm. Ảnh so sánh 6 đường (Agent tải về, hiện cho bạn xem): https://raw.githubusercontent.com/AgentBossVn/agent-boss-skills/main/vi-du/anh/so-sanh-6-duong.jpg\n')
 print('| Công cụ | Tiền | Trên máy bạn |\n|---|---|---|')
 for ten, tien, tt, _, _ in bang: print(f'| {ten} | {tien} | {tt} |')
 chua = [b for b in bang if b[2].startswith('⚠️') and (b[3] or b[4])]
