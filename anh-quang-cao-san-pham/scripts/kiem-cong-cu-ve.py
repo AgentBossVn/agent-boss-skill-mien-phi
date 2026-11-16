@@ -235,7 +235,7 @@ bang.append(('2. Gói Gemini (Google AI Pro) — Antigravity tự vẽ', '0đ th
 
 # --- 3. Claude tự dựng bằng code: ảnh thật của hãng cắt nền + nền vẽ bằng code + chữ HTML (không AI vẽ)
 tach = 'Vision của Mac' if mac and not WIN and chay(['xcode-select', '-p'])[0] == 0 else 'máy tách nền đơn giản (ảnh hãng phải nền trắng/trơn)'
-bang.append(('3. Claude tự dựng bằng code (đúng 100% sản phẩm, kiểu ảnh đồ hoạ, không có cảnh chụp)', '0đ',
+bang.append(('3. Claude tự dựng bằng code (đúng 100% sản phẩm, nhưng chỉ là ảnh đồ hoạ như banner, KHÔNG đẹp bằng ảnh AI vẽ)', '0đ',
              ('✅ sẵn sàng · tách nền bằng ' + tach) if nen_ok else '⚠️ cài máy nền trước', [], []))
 
 # ===== TẦNG 2 — máy vẽ các hãng qua API: miễn phí trước, trả tiền sau (CHỈ khi bạn tự chọn)
@@ -279,6 +279,8 @@ print('# Công cụ vẽ trên máy này — xếp theo thứ tự nên dùng\n(
       '(mọi đường: phần Agent chạy trừ hạn mức gói Agent của bạn, ~120 nghìn token/sản phẩm)\n'
       f'Python riêng của skill (mọi lệnh `python` trong SKILL.md = đường này): {SLASH(PY)}\n'
       'Mọi dòng "Agent chạy" bên dưới chạy được ở cả bash (Git Bash) lẫn PowerShell.\n')
+print('**Nói trước về độ đẹp:** muốn ảnh đẹp như ảnh chụp → gói ChatGPT (1), gói Gemini (2) hoặc đường trả tiền (4 sau 200 ảnh, 6). '
+      'Đường 0đ (3, 5) ra ảnh kém hẳn, chỉ dùng tạm. Ảnh ví dụ từng đường: https://github.com/AgentBossVn/agent-boss-skills/tree/main/vi-du\n')
 print('| Công cụ | Tiền | Trên máy bạn |\n|---|---|---|')
 for ten, tien, tt, _, _ in bang: print(f'| {ten} | {tien} | {tt} |')
 chua = [b for b in bang if b[2].startswith('⚠️') and (b[3] or b[4])]

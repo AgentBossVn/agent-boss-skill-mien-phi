@@ -27,9 +27,11 @@ Khi nhận việc, Agent sẽ tự làm các bước:
 
 ## Vẽ bằng gì và tốn bao nhiêu?
 
+**Xem ảnh ví dụ trước khi chọn: [cùng một sản phẩm, mỗi đường vẽ ra đẹp tới đâu](vi-du/README.md).** Muốn ảnh đẹp như ảnh chụp thì cần gói ChatGPT, gói Gemini hoặc trả tiền theo ảnh; chỉ dùng đường 0đ thì ảnh ra kém hẳn.
+
 Agent sẽ tự kiểm tra máy của bạn rồi in ra một bảng cho bạn chọn công cụ. Công cụ nào chưa có trên máy thì Agent sẽ cho bạn xem danh sách cần cài (lấy từ nguồn chính thức, đúng phiên bản đã kiểm tra), hỏi bạn đồng ý rồi mới cài. Bạn chỉ cần làm những bước bắt buộc người làm như đăng nhập.
 
-- **Ưu tiên gói AI bạn đang trả tiền, không tốn thêm chi phí:** dùng gói ChatGPT Plus/Pro (qua Codex, cho ảnh đẹp nhất mà mình đã đo), gói Google AI Pro (qua Antigravity), hoặc để Agent tự dựng ảnh bằng code từ ảnh thật của sản phẩm (tốn 0đ, sản phẩm đúng 100%, ra kiểu ảnh đồ hoạ chứ không phải ảnh chụp).
+- **Ưu tiên gói AI bạn đang trả tiền, không tốn thêm chi phí:** dùng gói ChatGPT Plus/Pro (qua Codex, cho ảnh đẹp nhất mà mình đã đo), gói Google AI Pro (qua Antigravity), hoặc để Agent tự dựng ảnh bằng code từ ảnh thật của sản phẩm (tốn 0đ, sản phẩm đúng 100%, đặt trên cảnh có bục, đèn, bóng đổ; ra kiểu ảnh đồ hoạ như banner sàn thương mại chứ không phải ảnh chụp đời thật).
 - **Nếu bạn chưa có gói nào:** dùng Seedream 4.5 của BytePlus được 200 ảnh miễn phí (cần thêm thẻ Visa/Master hoặc PayPal để kích hoạt), hoặc dùng Cloudflare miễn phí khoảng 40 ảnh/ngày (cho chất lượng ảnh kém nhất).
 - **Trả tiền theo lượt chỉ khi bạn tự chọn:** dùng Gemini API tốn khoảng 0,05 USD/ảnh. Agent không bao giờ tự ý chuyển sang đường tốn tiền.
 - **Phần việc của Agent (đọc, soát lỗi, đặt chữ):** tính vào hạn mức gói Agent bạn đang dùng, hết khoảng 120 nghìn token cho 1 sản phẩm.
