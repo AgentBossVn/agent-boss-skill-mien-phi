@@ -39,7 +39,8 @@ def moi_truong():
             thieu.append(LENH_CAI + '  (tạo Python riêng cho skill + cài thư viện vẽ chữ)')
             break
     tuy_chon = []
-    for mod, goi, de in (('faster_whisper', 'faster-whisper', 'làm phụ đề từ lời nói'), ('edge_tts', 'edge-tts', 'giọng đọc AI tiếng Việt')):
+    for mod, goi, de in (('faster_whisper', 'faster-whisper', 'làm phụ đề từ lời nói'), ('cv2', '"opencv-python-headless<5"', 'phụ đề tự né mặt'),
+                         ('edge_tts', 'edge-tts', 'giọng đọc AI tiếng Việt')):
         try:
             __import__(mod)
         except ImportError:

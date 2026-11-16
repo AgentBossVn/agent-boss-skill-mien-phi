@@ -43,6 +43,7 @@ ff('-f', 'lavfi', '-i', 'smptebars=s=1920x1080:r=30:d=6', '-c:v', 'libx264', '-p
 # giọng đọc giả + nhạc có phách 120 BPM
 ff('-f', 'lavfi', '-i', "aevalsrc='0.3*sin(2*PI*180*t)':s=48000:d=14", f'{T}/giong.mp3')
 ff('-f', 'lavfi', '-i', "aevalsrc='0.8*sin(2*PI*60*t)*exp(-30*mod(t,0.5))+0.1*sin(2*PI*440*t)':s=48000:d=20", f'{T}/nhac.mp3')
+ff('-f', 'lavfi', '-i', 'testsrc2=s=1024x1536', '-frames:v', '1', f'{T}/anh.png')   # ảnh minh hoạ giả để chèn
 for i, c in enumerate(['red', 'blue', 'green', 'orange', 'purple', 'white']):
     ff('-f', 'lavfi', '-i', f'color=c={c}:s=1920x1080:r=30:d=4', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', f'{T}/v{i}.mp4')
 th = os.path.join(T, 'thuong-hieu.json')
@@ -63,7 +64,8 @@ json.dump(d, open(pt, 'w', encoding='utf-8'), ensure_ascii=False)
 json.dump({'dau_ra': 'thanh-pham/video.mp4', 'thuong_hieu': '../thuong-hieu.json',
            'doan': [{'file': '../noi.mp4', 'tu': 4.6, 'den': 6.2}, {'file': '../noi.mp4', 'tu': 0, 'den': 12}],
            'chu': [{'tu': 0, 'den': 2.5, 'noi_dung': '3 SAI LẦM KHI LÀM OKRs', 'kieu': 'mo_dau'}],
-           'tu_khoa': ['sai lầm', 'okrs'], 'sua_chu': {'okrs': 'OKRs'}, 'nhac': '../nhac.mp3'},
+           'tu_khoa': ['sai lầm', 'okrs'], 'sua_chu': {'okrs': 'OKRs'}, 'nhac': '../nhac.mp3',
+           'chen_anh': [{'tu': 3, 'den': 6.5, 'anh': '../anh.png'}, {'tu': 7, 'den': 9, 'anh': '../anh.png', 'chuyen_dong': 'lia'}]},
           open(os.path.join(w, 'ke-hoach.json'), 'w', encoding='utf-8'), ensure_ascii=False)
 print(chay('video-phu-de-to', 'dung.py', os.path.join(w, 'ke-hoach.json'), '--chi-thoi-gian'))
 print(chay('video-phu-de-to', 'dung.py', os.path.join(w, 'ke-hoach.json')))

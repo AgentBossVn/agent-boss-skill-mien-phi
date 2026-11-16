@@ -16,6 +16,8 @@ from chung import W, H, FPS, ENC, AENC, run, duong_ff, doc_json, ghi_json, thong
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from phan_tich import cho_lang
+from mau_tieng import bo_can, to_sau_can
+from tim_mat import khung_mat
 
 KH_PATH = os.path.abspath(sys.argv[1])
 GOC = os.path.dirname(KH_PATH)
@@ -83,20 +85,41 @@ def tim_nhip(nhac):
 
 segs, t = [], 0.0   # (file, a, b, ra_a)
 SEG_DOAN = []   # khúc thứ i thuộc đoạn nào trong kế hoạch (phụ đề không ghép chữ của hai đoạn khác nhau)
+SEG_VUNG = []   # khúc thứ i thuộc vùng tiếng nào (video gốc đổi micro giữa chừng) → (file, số vùng) hoặc None
 for so_doan, d in enumerate(KH['doan']):
     f = duong(d['file'])
     tt = thong_tin(f)
     a, b = float(d.get('tu', 0)), min(float(d.get('den', tt['dai'])), tt['dai'])
+    pt = phan_tich_cua(f)
+    pt = pt if pt.get('file') == os.path.abspath(f) else {}
     if P.get('cat_lang') and tt['co_tieng'] and d.get('cat_lang', True):
-        pt = phan_tich_cua(f)
-        lang = pt.get('cho_lang') if pt.get('file') == os.path.abspath(f) else None
-        khuc = cat_lang(f, a, b, lang if lang is not None else cho_lang(f))
+        khuc = cat_lang(f, a, b, pt['cho_lang'] if 'cho_lang' in pt else cho_lang(f))
     else:
         khuc = [(fr(a), fr(b))]
+    vung = pt.get('vung_tieng') or []
     for x, y in khuc:
-        segs.append([f, x, y, t])
-        SEG_DOAN.append(so_doan)
-        t += y - x
+        # khúc vắt qua chỗ đổi tiếng thì chẻ đôi, mỗi nửa cân theo vùng của nó
+        moc = [x] + [fr(v[0]) for v in vung[1:] if x + 0.3 < v[0] < y - 0.3] + [y]
+        for x2, y2 in zip(moc, moc[1:]):
+            segs.append([f, x2, y2, t])
+            SEG_DOAN.append(so_doan)
+            SEG_VUNG.append((f, max(j for j, v in enumerate(vung) if v[0] <= (x2 + y2) / 2)) if vung else None)
+            t += y2 - x2
+
+# cân tiếng: các vùng tiếng được dùng kéo về mức trung bình (theo thời lượng) để giọng không đổi đột ngột
+CAN = [''] * len(segs)
+dung_vung = {}
+for (f, x, y, _), v in zip(segs, SEG_VUNG):
+    if v:
+        dung_vung[v] = dung_vung.get(v, 0) + y - x
+if len(dung_vung) > 1 and P.get('giu_tieng_goc', True):
+    vg = {v: phan_tich_cua(v[0])['vung_tieng'][v[1]] for v in dung_vung}
+    tong = sum(dung_vung.values())
+    dich = sum(np.array(vg[v][2]) * s for v, s in dung_vung.items()) / tong
+    to = {v: to_sau_can(vg[v][2], vg[v][3], dich) for v in dung_vung}
+    to_dich = sum(to[v] * s for v, s in dung_vung.items()) / tong
+    CAN = [bo_can(vg[v][2], dich, to_dich - to[v]) if v else '' for v in SEG_VUNG]
+    log(f'Cân tiếng {len(dung_vung)} vùng (video gốc đổi micro/lọc ồn giữa chừng)')
 
 NHAC = duong(KH['nhac']) if KH.get('nhac') else (TH.get('nhac') and os.path.expanduser(TH['nhac']))
 if NHAC and not os.path.exists(NHAC):
@@ -295,19 +318,38 @@ def _tham(toks, f, toi_da_rong):
     return dong + [cur] if cur else dong
 
 
-def ve_khoi(toks, co, y_tam, vien, mau_vien, bong=True, nen=None, xoay=0):
-    """Vẽ 1 khối chữ (nhiều màu) vào ảnh trong suốt cỡ khung, tự xuống dòng và thu nhỏ cho vừa vùng an toàn."""
+def ve_khoi(toks, co, y_tam, vien, mau_vien, bong=True, nen=None, xoay=0, mat=None):
+    """Vẽ 1 khối chữ (nhiều màu) vào ảnh trong suốt cỡ khung, tự xuống dòng và thu nhỏ cho vừa vùng an toàn.
+    mat = (đỉnh mặt, đáy cằm): chữ không được đè lên khoảng này → thử dưới cằm, rồi trên đầu, chật thì thu nhỏ chữ.
+    Trả về (ảnh, vị trí: 'giua' | 'duoi' | 'tren' | 'de')."""
     rong_toi_da = W - 2 * P.get('le', 90)
-    f = ImageFont.truetype(FONT, co)
-    dong = chia_dong(toks, f, rong_toi_da)
-    while len(dong) > 3 and co > 40:
-        co = int(co * 0.88)
+    tren_cung, day = H * 0.09, H * 0.8   # trên 9%: thanh "Đang theo dõi | Dành cho bạn"; dưới 80%: tên kênh, chú thích TikTok
+    while True:
         f = ImageFont.truetype(FONT, co)
         dong = chia_dong(toks, f, rong_toi_da)
-    lh = int(co * 1.2)
+        lh = int(co * 1.2)
+        cao = lh * len(dong)
+        if co > 40 and len(dong) > 3:
+            co = int(co * 0.88)
+            continue
+        y0, vt = int(y_tam - cao / 2), 'giua'
+        if mat:
+            ft, fb = mat
+            if not (y0 + cao < ft - 16 or y0 > fb + 16):          # chỗ mặc định đè lên mặt
+                if fb + 24 + cao <= day:
+                    y0, vt = int(fb + 24), 'duoi'
+                elif ft - 24 - cao >= tren_cung:
+                    y0, vt = int(ft - 24 - cao), 'tren'
+                elif co > 56:
+                    co = int(co * 0.9)
+                    continue
+                else:
+                    y0, vt = int(day - cao), 'de'
+        break
+    y0 = int(min(max(y0, tren_cung), day - cao))
+    y_tam = y0 + cao / 2
     lop = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     dr = ImageDraw.Draw(lop)
-    y0 = int(y_tam - lh * len(dong) / 2)
     if nen:
         sp = f.getlength(' ')
         rong = max(sum(f.getlength(x) for x, _ in d) + sp * (len(d) - 1) for d in dong)
@@ -316,7 +358,7 @@ def ve_khoi(toks, co, y_tam, vien, mau_vien, bong=True, nen=None, xoay=0):
         ve_dong(dr, d, f, y0 + i * lh, vien, mau_vien, bong and not nen)
     if xoay:
         lop = lop.rotate(xoay, resample=Image.BICUBIC, center=(W / 2, y_tam))
-    return lop
+    return lop, vt
 
 
 os.makedirs(os.path.join(TMP, 'cap'), exist_ok=True)
@@ -327,6 +369,38 @@ mau_vien_pd = mau(PD['mau_vien']) if PD.get('mau_vien') else (0, 0, 0, 255)
 nen_pd = mau(PD['nen'][:7], int(PD['nen'][7:9] or 'ff', 16)) if PD.get('nen') else None
 y_pd = int(H * float(KH.get('vi_tri_phu_de') or PD.get('vi_tri', 0.69)))   # kế hoạch dời được khi phụ đề che mặt
 muc = []   # (tên ảnh, giây hiện)
+
+# phóng to / thu nhỏ xen kẽ: tính trước để biết mặt nằm đâu khi đặt phụ đề
+khung = P.get('khung', 'cat')
+doi = P.get('doi_khung_giay', 0)
+ZS, z, moc = [], 1.0, 0.0
+for f, a, b, ra in segs:
+    if doi and ra - moc >= doi:
+        z = P.get('zoom', 1.2) if z == 1.0 else 1.0
+        moc = ra
+    ZS.append(z)
+_TT = {}
+
+
+def mat_luc(t1, t2):
+    """(đỉnh mặt cao nhất, đáy cằm thấp nhất) trong khoảng t1–t2 của video mới; không thấy mặt thì None."""
+    ds = []
+    for i, (f, a, b, ra) in enumerate(segs):
+        if ra < t2 and ra + (b - a) > t1:
+            pt = phan_tich_cua(f)
+            mat = pt.get('mat') if pt.get('file') == os.path.abspath(f) else None
+            if mat:
+                tt = _TT.setdefault(f, thong_tin(f))
+                k = khung_mat(mat, a + max(t1, ra) - ra, tt['rong'], tt['cao'], khung, ZS[i])
+                if k:
+                    ds.append(k)
+    return (min(k[0] for k in ds), max(k[1] for k in ds)) if ds else None
+
+
+def chu_tren_luc(t1, t2):
+    """Có chữ đặt sẵn ở nửa trên khung (câu mở đầu, tiêu đề) đang hiện trong t1–t2 không."""
+    return any(float(c.get('tu', 0)) < t2 and (THAN if c.get('den', 'het') == 'het' else float(c['den'])) > t1
+               and P.get('chu', {}).get(c.get('kieu', 'nhan'), {}).get('vi_tri', 0.2) < 0.45 for c in KH.get('chu', []))
 
 
 def them(ten, du):
@@ -350,13 +424,21 @@ for k, c in enumerate(chunks):
             t2 = words[c[j + 1]][0] if j + 1 < len(c) else kt
             toks = [(hien(words[m][1]), NHAN if m == i else mau_chu_pd) for m in c]
             p = f'k{k:03d}_{j}.png'
-            ve_khoi(toks, co, y_pd, PD.get('vien', 8), mau_vien_pd, PD.get('bong', True), nen_pd).save(os.path.join(TMP, 'cap', p))
+            lop, vt = ve_khoi(toks, co, y_pd, PD.get('vien', 8), mau_vien_pd, PD.get('bong', True), nen_pd, mat=mat_luc(t1, t2))
+            if vt == 'tren' and chu_tren_luc(t1, t2):   # lên trên đầu mà đang có câu mở đầu ở đó → nhường câu mở đầu
+                p = 'trong.png'
+            else:
+                lop.save(os.path.join(TMP, 'cap', p))
             them(p, t2 - t1)
     else:
         toks = [(hien(words[i][1]), NHAN if (hl[i] or to) else mau_chu_pd) for i in c]
         p = f'c{k:03d}.png'
-        ve_khoi(toks, co, y_pd, PD.get('vien', 9), mau_vien_pd, PD.get('bong', True), nen_pd,
-                xoay=3 if to and PD.get('nghieng_chu_to', True) else 0).save(os.path.join(TMP, 'cap', p))
+        lop, vt = ve_khoi(toks, co, y_pd, PD.get('vien', 9), mau_vien_pd, PD.get('bong', True), nen_pd,
+                          xoay=3 if to and PD.get('nghieng_chu_to', True) else 0, mat=mat_luc(bd, kt))
+        if vt == 'tren' and chu_tren_luc(bd, kt):   # lên trên đầu mà đang có câu mở đầu ở đó → nhường câu mở đầu
+            p = 'trong.png'
+        else:
+            lop.save(os.path.join(TMP, 'cap', p))
         them(p, kt - bd)
     truoc = kt
 them('trong.png', TONG - truoc + 1)
@@ -377,19 +459,15 @@ for k, c in enumerate(KH.get('chu', [])):
     toks = [(x, mc) for x in c['noi_dung'].split()]
     p = os.path.join(TMP, f'chu{k}.png')
     ve_khoi(toks, kieu.get('co', 92), int(H * kieu.get('vi_tri', 0.2)), kieu.get('vien', 0 if nen else 8), (0, 0, 0, 255),
-            nen=nen, xoay=kieu.get('xoay', 0)).save(p)
+            nen=nen, xoay=kieu.get('xoay', 0))[0].save(p)
     lop_chu.append((p, bd, kt))
 
 # ---------- 4. dựng từng khúc hình ----------
 os.makedirs(os.path.join(TMP, 'khuc'), exist_ok=True)
-khung = P.get('khung', 'cat')
-doi = P.get('doi_khung_giay', 0)
-z, moc, ds = 1.0, 0.0, []
+ds = []
 for i, (f, a, b, ra) in enumerate(segs):
     tt = thong_tin(f)
-    if doi and ra - moc >= doi:
-        z = P.get('zoom', 1.2) if z == 1.0 else 1.0
-        moc = ra
+    z = ZS[i]
     zoom = f',crop=iw/{z}:ih/{z}:(iw-ow)/2:(ih-oh)*0.35,scale={W}:{H}' if z != 1.0 else ''
     if khung == 'nen-mo' and abs(tt['rong'] / tt['cao'] - W / H) > 0.05:
         vf = (f'[0:v]split[a][b];[a]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=40:4,eq=brightness=-0.1[bg];'
@@ -399,7 +477,7 @@ for i, (f, a, b, ra) in enumerate(segs):
     n = max(1, round((b - a) * FPS))
     dur = n / FPS
     if tt['co_tieng'] and P.get('giu_tieng_goc', True):
-        af = f';[0:a]aresample=48000,afade=t=in:d=0.015,afade=t=out:st={max(0, dur - 0.015):.3f}:d=0.015[a]'
+        af = f';[0:a]aresample=48000,{CAN[i]}afade=t=in:d=0.015,afade=t=out:st={max(0, dur - 0.015):.3f}:d=0.015[a]'
         vao = ['-ss', f'{a:.3f}', '-t', f'{dur:.3f}', '-i', f]
     else:
         af = ';[1:a]anull[a]'
@@ -418,9 +496,9 @@ if END:   # thẻ kết từ hồ sơ thương hiệu
         the.alpha_composite(lg, ((W - lg.width) // 2, y - lg.height // 2))
         y += lg.height // 2 + 140
     if TH.get('ten'):
-        the.alpha_composite(ve_khoi([(x, CHU) for x in TH['ten'].split()], 96, y, 0, (0, 0, 0, 255), bong=False))
+        the.alpha_composite(ve_khoi([(x, CHU) for x in TH['ten'].split()], 96, y, 0, (0, 0, 0, 255), bong=False)[0])
         y += 230
-    the.alpha_composite(ve_khoi([(x, CHINH) for x in TH['cau_ket'].upper().split()], 64, y, 0, (0, 0, 0, 255), nen=NHAN))
+    the.alpha_composite(ve_khoi([(x, CHINH) for x in TH['cau_ket'].upper().split()], 64, y, 0, (0, 0, 0, 255), nen=NHAN)[0])
     pthe = os.path.join(TMP, 'the-ket.png')
     the.convert('RGB').save(pthe)
     n = round(END * FPS)
@@ -438,12 +516,28 @@ run(['ffmpeg', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', os.path.
 vao = ['-i', nen_vid, '-f', 'concat', '-safe', '0', '-i', os.path.join(TMP, 'cap', 'list.txt')]
 fc = [f'[1:v]fps={FPS},format=rgba[cap]']
 truoc_v = '[0:v]'
+# ảnh minh hoạ chèn xen (nằm dưới chữ đặt sẵn và phụ đề): tiếng vẫn chạy, hình cắt sang ảnh, ảnh luôn chuyển động
+ANH = [c for c in KH.get('chen_anh', []) if float(c['tu']) < THAN]
+for j, c in enumerate(ANH):
+    bd = float(c['tu'])
+    du = min(float(c['den']), THAN) - bd
+    n = max(1, round(du * FPS))
+    cd = c.get('chuyen_dong') or ('zoom_in', 'zoom_out', 'lia')[j % 3]
+    zz = {'zoom_out': f'1.15-0.15*on/{n}', 'lia': '1.15'}.get(cd, f'1+0.15*on/{n}')
+    xx = f'(iw-iw/zoom)*on/{n}' if cd == 'lia' else 'iw/2-(iw/zoom/2)'
+    fc.append(f"[{2 + len(lop_chu) + j}:v]scale={W * 2}:{H * 2}:force_original_aspect_ratio=increase,crop={W * 2}:{H * 2},"
+              f"zoompan=z='{zz}':x='{xx}':y='ih/2-(ih/zoom/2)':d=1:s={W}x{H}:fps={FPS},setsar=1,setpts=PTS-STARTPTS+{bd:.3f}/TB[anh{j}]")
+    fc.append(f'{truoc_v}[anh{j}]overlay=0:0:eof_action=pass[va{j}]')
+    truoc_v = f'[va{j}]'
 for k, (p, bd, kt) in enumerate(lop_chu):
     vao += ['-loop', '1', '-t', f'{TONG:.3f}', '-i', p]
     fc.append(f"{truoc_v}[{2 + k}:v]overlay=0:0:enable='between(t,{bd:.3f},{kt - 0.02:.3f})'[v{k}]")
     truoc_v = f'[v{k}]'
+for c in ANH:
+    du = min(float(c['den']), THAN) - float(c['tu'])
+    vao += ['-loop', '1', '-framerate', str(FPS), '-t', f'{du:.3f}', '-i', duong(c['anh'])]
 fc.append(f'{truoc_v}[cap]overlay=0:0:eof_action=pass,format=yuv420p[vout]')
-idx = 2 + len(lop_chu)
+idx = 2 + len(lop_chu) + len(ANH)
 co_loi = bool(words) or bool(GIONG)
 tieng = []
 if P.get('giu_tieng_goc', True):

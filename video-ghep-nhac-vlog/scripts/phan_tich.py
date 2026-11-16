@@ -2,9 +2,10 @@
 # Chạy: python3 scripts/phan_tich.py <video hoặc thư mục> [...] --ra <thư-mục-làm-việc> [--khong-nghe] [--model large-v3-turbo]
 # Ra: <thư-mục-làm-việc>/phan-tich/<tên>.json (độ dài, khung, chỗ lặng, chỗ đổi cảnh, lời nói theo từng chữ)
 #     <thư-mục-làm-việc>/phan-tich/<tên>.jpg  (ảnh lưới: mỗi ô là 1 khung hình kèm giây, để agent nhìn và chọn đoạn đẹp)
-import argparse, glob, os, re, subprocess
+import argparse, glob, json, os, re, subprocess, sys
 from chung import run, thong_tin, ghi_json, tim_font, log  # nạp trước: tự đổi sang Python riêng
 from PIL import Image, ImageDraw, ImageFont
+from mau_tieng import vung_tieng
 
 DUOI = ('.mp4', '.mov', '.m4v', '.mkv', '.webm', '.avi')
 
@@ -98,6 +99,16 @@ def main():
         kq['cho_lang'] = cho_lang(f) if tt['co_tieng'] else []
         kq['ty_le_lang'] = round(sum(e - s for s, e in kq['cho_lang']) / tt['dai'], 2) if tt['co_tieng'] else 1.0
         kq['doi_canh'] = doi_canh(f)
+        kq['vung_tieng'] = vung_tieng(f, tt['dai']) if tt['co_tieng'] else []
+        r = subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tim_mat.py'), f, str(tt['rong']), str(tt['cao']), str(tt['dai'])],
+                           capture_output=True, text=True, encoding='utf-8', errors='replace')
+        kq['mat'] = json.loads(r.stdout) if r.returncode == 0 and r.stdout.strip() else None
+        if kq['mat'] is None and r.returncode == 0:
+            log('  Chưa cài OpenCV → phụ đề không tự né mặt. Cài: python3 scripts/kiem_tra.py --cai "opencv-python-headless<5"')
+        elif kq['mat'] is None:
+            log('  Không dò được mặt → phụ đề không tự né mặt. Lỗi: ' + r.stderr.strip()[-300:])
+        if kq['vung_tieng']:
+            log(f'  Tiếng đổi giữa chừng ở giây {", ".join(str(int(v[0])) for v in kq["vung_tieng"][1:])} (đổi micro/lọc ồn): dung.py sẽ tự cân')
         kq['loi_noi'] = None
         if tt['co_tieng'] and not a.khong_nghe and kq['ty_le_lang'] < 0.8:
             kq['loi_noi'] = nghe(f, a.model)

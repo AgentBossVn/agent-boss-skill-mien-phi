@@ -15,8 +15,9 @@ description: Dựng video nói chuyện/chia sẻ (người nói trước camera
 3. **Cắt lặng:** tự động (bỏ khoảng lặng > 0,3 giây). Thêm vào `sua_chu` mọi chữ máy nghe sai, đặc biệt tên riêng và từ tiếng Anh.
 4. **Từ khoá:** chọn 5–10 từ/cụm đắt (con số, kết quả, nỗi đau) cho `tu_khoa`: phụ đề sẽ tô màu nhấn; cụm ≤ 2 chữ có từ khoá hiện to và nghiêng.
 5. **Chữ nhấn giữa video (tuỳ chọn):** kiểu `nhan` cho tiêu đề phụ khi chuyển ý ("BƯỚC 2", "SAI LẦM SỐ 1").
-6. **Nhạc:** nhẹ, nằm dưới giọng nói. Không có nhạc thì để trống, vẫn ổn.
-7. **Thẻ kết:** bật (`"the_ket": true`) — tên kênh + câu kêu gọi từ hồ sơ thương hiệu.
+6. **Ảnh minh hoạ chèn xen:** video chỉ có mặt người nói từ đầu tới cuối rất dễ bị lướt qua. Mỗi 10–20 giây chèn 1 ảnh (`chen_anh`) minh hoạ đúng chuyện đang kể, 3–7 giây mỗi ảnh. Không có ảnh thì hỏi người dùng có muốn tạo không, đừng tự bịa ảnh không khớp lời.
+7. **Nhạc:** nhẹ, lót suốt video dưới giọng nói. Nên có: video chỉ có giọng nói nghe trống. Không có nhạc có quyền dùng thì để trống.
+8. **Thẻ kết:** bật (`"the_ket": true`) — tên kênh + câu kêu gọi từ hồ sơ thương hiệu.
 
 ## Kiểu chữ có trong skill này
 
