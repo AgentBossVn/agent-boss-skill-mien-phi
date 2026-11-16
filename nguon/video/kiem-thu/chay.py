@@ -47,7 +47,7 @@ for i, c in enumerate(['red', 'blue', 'green', 'orange', 'purple', 'white']):
     ff('-f', 'lavfi', '-i', f'color=c={c}:s=1920x1080:r=30:d=4', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', f'{T}/v{i}.mp4')
 th = os.path.join(T, 'thuong-hieu.json')
 json.dump({'ten': 'Tiệm Nhà Mây', 'cau_ket': 'Bấm giỏ hàng để đặt ngay', 'mau_chinh': '#1B1B1B', 'mau_nhan': '#FFD21F'},
-          open(th, 'w'), ensure_ascii=False)
+          open(th, 'w', encoding='utf-8'), ensure_ascii=False)
 os.environ['AGENT_BOSS_HOME'] = os.path.join(T, 'nha')   # không đụng hồ sơ thật của người chạy thử
 ok = True
 
@@ -56,15 +56,15 @@ print('video-phu-de-to')
 w = os.path.join(T, 'w1')
 chay('video-phu-de-to', 'phan_tich.py', f'{T}/noi.mp4', '--ra', w, '--khong-nghe')
 pt = os.path.join(w, 'phan-tich', 'noi.json')
-d = json.load(open(pt))
+d = json.load(open(pt, encoding='utf-8'))
 cau = 'Hôm nay tôi chia sẻ ba sai lầm khi làm OKRs. Sai lầm đầu tiên là đặt quá nhiều mục tiêu, giảm 70% hiệu quả. Các bạn nhớ nhé'.split()
 d['loi_noi'] = [[round(0.1 + (i // 4) * 2.3 + (i % 4) * 0.35, 2), round(0.4 + (i // 4) * 2.3 + (i % 4) * 0.35, 2), x] for i, x in enumerate(cau)]
-json.dump(d, open(pt, 'w'), ensure_ascii=False)
+json.dump(d, open(pt, 'w', encoding='utf-8'), ensure_ascii=False)
 json.dump({'dau_ra': 'thanh-pham/video.mp4', 'thuong_hieu': '../thuong-hieu.json',
            'doan': [{'file': '../noi.mp4', 'tu': 4.6, 'den': 6.2}, {'file': '../noi.mp4', 'tu': 0, 'den': 12}],
            'chu': [{'tu': 0, 'den': 2.5, 'noi_dung': '3 SAI LẦM KHI LÀM OKRs', 'kieu': 'mo_dau'}],
            'tu_khoa': ['sai lầm', 'okrs'], 'sua_chu': {'okrs': 'OKRs'}, 'nhac': '../nhac.mp3'},
-          open(os.path.join(w, 'ke-hoach.json'), 'w'), ensure_ascii=False)
+          open(os.path.join(w, 'ke-hoach.json'), 'w', encoding='utf-8'), ensure_ascii=False)
 print(chay('video-phu-de-to', 'dung.py', os.path.join(w, 'ke-hoach.json'), '--chi-thoi-gian'))
 print(chay('video-phu-de-to', 'dung.py', os.path.join(w, 'ke-hoach.json')))
 ok &= kiem(os.path.join(w, 'thanh-pham', 'video.mp4'), 11, 14)   # 12s gốc − ~2,6s lặng + 1,6s trích trước + 2,5s thẻ kết
@@ -80,7 +80,7 @@ json.dump({'dau_ra': 'thanh-pham/video.mp4', 'thuong_hieu': '../thuong-hieu.json
                    {'tu': 6, 'den': 9, 'noi_dung': '890K', 'kieu': 'gia'},
                    {'tu': 10, 'den': 'het', 'noi_dung': 'BẤM GIỎ HÀNG NGAY', 'kieu': 'cta'}],
            'giong_doc': {'file': '../giong.mp3'}, 'nhac': '../nhac.mp3'},
-          open(os.path.join(w, 'ke-hoach.json'), 'w'), ensure_ascii=False)
+          open(os.path.join(w, 'ke-hoach.json'), 'w', encoding='utf-8'), ensure_ascii=False)
 print(chay('video-mo-hop-san-pham', 'dung.py', os.path.join(w, 'ke-hoach.json')))
 ok &= kiem(os.path.join(w, 'thanh-pham', 'video.mp4'), 15, 16)
 
@@ -91,7 +91,7 @@ json.dump({'dau_ra': 'thanh-pham/video.mp4', 'thuong_hieu': '../thuong-hieu.json
            'doan': [{'file': f'../v{i}.mp4', 'tu': 0.5, 'den': 3.5} for i in range(6)],
            'chu': [{'tu': 0, 'den': 2.5, 'noi_dung': '1 NGÀY Ở ĐÀ LẠT', 'kieu': 'mo_dau'},
                    {'tu': 3, 'den': 5.5, 'noi_dung': 'sáng sớm sương mù', 'kieu': 'dan_chuyen'}],
-           'nhac': '../nhac.mp3'}, open(os.path.join(w, 'ke-hoach.json'), 'w') if os.makedirs(w, exist_ok=True) is None else None, ensure_ascii=False)
+           'nhac': '../nhac.mp3'}, open(os.path.join(w, 'ke-hoach.json'), 'w', encoding='utf-8') if os.makedirs(w, exist_ok=True) is None else None, ensure_ascii=False)
 print(chay('video-ghep-nhac-vlog', 'dung.py', os.path.join(w, 'ke-hoach.json')))
 ok &= kiem(os.path.join(w, 'thanh-pham', 'video.mp4'), 5, 16)
 

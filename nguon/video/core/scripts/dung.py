@@ -325,7 +325,7 @@ for k, c in enumerate(chunks):
         them(p, kt - bd)
     truoc = kt
 them('trong.png', TONG - truoc + 1)
-with open(os.path.join(TMP, 'cap', 'list.txt'), 'w') as fh:
+with open(os.path.join(TMP, 'cap', 'list.txt'), 'w', encoding='utf-8') as fh:
     fh.write('ffconcat version 1.0\n')
     for p, du in muc:
         fh.write(f"file '{p}'\nduration {du:.3f}\n")
@@ -394,7 +394,7 @@ if END:   # thẻ kết từ hồ sơ thương hiệu
          '-filter_complex', f"[0:v]scale=2160:3840,zoompan=z='1+0.03*on/{n}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={n}:s={W}x{H}:fps={FPS},"
          f"fade=t=in:st=0:d=0.3,setsar=1[v]", '-map', '[v]', '-map', '1:a', '-frames:v', str(n)] + ENC + AENC + ['-t', f'{END:.3f}', p])
     ds.append(p)
-with open(os.path.join(TMP, 'khuc', 'list.txt'), 'w') as fh:
+with open(os.path.join(TMP, 'khuc', 'list.txt'), 'w', encoding='utf-8') as fh:
     fh.writelines(f"file '{duong_ff(x)}'\n" for x in ds)
 nen_vid = os.path.join(TMP, 'nen.mp4')
 run(['ffmpeg', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', os.path.join(TMP, 'khuc', 'list.txt'), '-c', 'copy', nen_vid])
@@ -430,7 +430,7 @@ if tieng:
     fc.append(''.join(tieng) + f'amix=inputs={len(tieng)}:normalize=0:duration=longest,atrim=duration={TONG:.3f},alimiter=limit=0.95[aout]')
 else:
     fc.append('[0:a]anull[aout]')
-with open(os.path.join(TMP, 'filter.txt'), 'w') as fh:
+with open(os.path.join(TMP, 'filter.txt'), 'w', encoding='utf-8') as fh:
     fh.write(';\n'.join(fc))
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 run(['ffmpeg', '-y', '-v', 'error'] + vao + ['-filter_complex_script', os.path.join(TMP, 'filter.txt'), '-map', '[vout]',
