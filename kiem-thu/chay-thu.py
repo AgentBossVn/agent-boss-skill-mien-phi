@@ -268,6 +268,8 @@ def giai_doan_2():
     khang_dinh(ma == 0 and Image.open(anh / 'ghep-1.png').size == (1080, 1350) and 'CẢNH BÁO' not in ra, 'ghép vật đủ nét: ảnh 1080x1350, không cảnh báo', ra)
     ma, ra = chay([py, SCRIPTS / 'ghep-san-pham-that.py', anh / 'nen-1080x1350.png', anh / 'vat.png', anh / 'ghep-2.png', '--cao', '0.9'], env)
     khang_dinh(ma == 0 and 'CẢNH BÁO' in ra, 'ghép vật nhỏ với --cao 0.9: có "CẢNH BÁO" (tiếng Việt qua ống không vỡ)', ra)
+    ma, ra = chay([py, SCRIPTS / 'ghep-san-pham-that.py', anh / 'nen-1920x1080.png', anh / 'vat-lon.png', anh / 'ghep-3.png', '--cao', '0.3'], env)
+    khang_dinh(ma == 0 and 'sản phẩm NHỎ' in ra, 'ghép --cao 0.3 trên ảnh ngang: có cảnh báo "sản phẩm NHỎ"', ra)
     # --- đặt chữ
     tieu_de('dat-chu.py (Chrome trên Mac, Edge/Chrome trên Windows)')
     spec = importlib.util.spec_from_file_location('dat_chu', SCRIPTS / 'dat-chu.py'); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
@@ -287,6 +289,34 @@ def giai_doan_2():
         khang_dinh(sum(ImageStat.Stat(ImageChops.difference(a, b)).mean) > 1, 'ảnh đặt chữ KHÁC nền (chữ đã lên)')
         khang_dinh(jpg.stat().st_size > 5000, 'có cả JPG')
     else: khang_dinh(False, 'dat-chu ra đủ PNG + JPG', ra)
+    # --- kiểu chữ phẳng + dòng lợi ích + nút (đường dựng bằng code)
+    (dc / 'cau-hinh-2.json').write_text(json.dumps({'phang': {'nen': 'nen.png', 'W': 1080, 'H': 1350, 'khoi': 'left:58px;top:60px', 'co_chu': 84,
+        'mau': '#b01820', 'mau_nhan': '#e8b848', 'nen_toi': True, 'kieu_chu': 'phang', 'dong': [{'kieu': 'dai', 'chu': 'Cà phê hòa tan', 'co': 0.4},
+        {'kieu': 'lon', 'chu': 'Đậm vị'}, {'kieu': 'lon-trang', 'chu': 'mỗi sáng'}, {'kieu': 'y', 'chu': 'Hộp 21 gói'}, {'kieu': 'nut', 'chu': 'Xem tại vi-du.vn'}]}},
+        ensure_ascii=False), encoding='utf-8')
+    ma, ra = chay([py, SCRIPTS / 'dat-chu.py', dc / 'cau-hinh-2.json'], env)
+    khang_dinh(ma == 0 and (dc / 'ra' / 'phang.jpg').exists() and Image.open(dc / 'ra' / 'phang.png').size == (1080, 1350), 'dat-chu kieu_chu phang + dòng y + nut: ra ảnh 1080x1350', ra)
+    (dc / 'cau-hinh-3.json').write_text(json.dumps({'sai': {'nen': 'nen.png', 'W': 1080, 'H': 1350, 'khoi': 'left:0;top:0', 'co_chu': 60, 'dong': [{'kieu': 'la', 'chu': 'x'}]}}), encoding='utf-8')
+    ma, ra = chay([py, SCRIPTS / 'dat-chu.py', dc / 'cau-hinh-3.json'], env)
+    khang_dinh(ma != 0 and 'không có' in ra, 'dat-chu: kiểu dòng lạ → báo lỗi rõ', ra)
+    # --- dựng cảnh bằng code (bục, đèn, phản chiếu) — đường miễn phí "Claude tự dựng"
+    tieu_de('dung-canh-bang-code.py')
+    from PIL import ImageStat as _IS
+    for kieu in ('san-khau', 'sang-sach', 'mau-khoi'):
+        ma, ra = chay([py, SCRIPTS / 'dung-canh-bang-code.py', '--vat', anh / 'vat-lon.png', '--mau-chinh', '#1f6f5c', '--kieu', kieu,
+                       '--co', '1080x1350', '1920x1080', '1080x1920', '--ra', anh / 'canh'], env)
+        khang_dinh(ma == 0 and ra.count('VÙNG CHỪA CHỮ') == 3, f'dựng cảnh {kieu}: chạy, in vùng chừa chữ cho 3 cỡ', ra)
+        for co in ('1080x1350', '1920x1080', '1080x1920'):
+            p = anh / 'canh' / f'canh-{kieu}-{co}.png'
+            if not khang_dinh(p.exists() and 'x'.join(map(str, Image.open(p).size)) == co, f'  canh-{kieu}-{co}.png đúng cỡ'): continue
+            im = Image.open(p).convert('RGB'); W, H = im.size
+            tam = (0.72 if W > H * 1.2 else 0.5, 0.60)  # điểm nằm trong sản phẩm (vật thử màu đỏ 200,30,40)
+            r, g, b = im.getpixel((round(W * tam[0]), round(H * tam[1])))
+            khang_dinh(r > 150 and g < 90 and b < 100, f'  {co}: sản phẩm (đỏ) nằm đúng chỗ, thấy RGB({r},{g},{b})')
+            khang_dinh(sum(_IS.Stat(im.crop((0, 0, W // 3, H // 4))).stddev) < 60, f'  {co}: góc trên-trái êm (chỗ đặt chữ)')
+    khang_dinh(not [f for f in (anh / 'canh').iterdir() if f.name.startswith('.')], 'dựng cảnh: dọn hết tệp tạm')
+    ma, ra = chay([py, SCRIPTS / 'dung-canh-bang-code.py', '--vat', anh / 'vat.png', '--mau-chinh', '#1f6f5c', '--co', '1080x1350', '--ra', anh / 'canh', '--ten', 'nho'], env)
+    khang_dinh(ma == 0 and 'CHÚ Ý' in ra, 'dựng cảnh với vật nhỏ: không phóng quá cỡ gốc, có "CHÚ Ý"', ra)
     if WIN:  # đường Edge chưa từng thử vì máy CI có Chrome: ép dùng Edge qua biến CHROME
         edge = next((x for x in (r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe', r'C:\Program Files\Microsoft\Edge\Application\msedge.exe') if os.path.exists(x)), '')
         if khang_dinh(bool(edge), 'máy CI Windows có Edge'):

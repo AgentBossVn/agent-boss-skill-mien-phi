@@ -1,5 +1,5 @@
 {
- "_huong_dan": "Mỗi khoá (trừ khoá bắt đầu bằng _) là 1 ảnh. Đường dẫn tính từ thư mục chứa tệp này. kieu: lon | lon-trang | dai | dai-toi | nho. co = cỡ so với co_chu. canh: trai | phai. suong = độ sáng quầng sau khối chữ (0..1). logo.the = true: đặt logo trong thẻ trắng bo góc (dùng khi nền rối/tối). Ảnh nền to hơn W×H vẫn được tự phủ đúng khung. Mở ảnh nền xem đầu người nằm đâu rồi mới đặt khoi. kieu_chu: nghieng-dam (mặc định) | dam | thanh-lich. nen_toi = true khi ảnh nền tối (chữ nhỏ thành trắng). mau = màu LẤY TỪ LOGO HÃNG (đừng để màu mẫu #EB4B28). Ra cả .png và .jpg (JPG 92 để giao).",
+ "_huong_dan": "Mỗi khoá (trừ khoá bắt đầu bằng _) là 1 ảnh. Đường dẫn tính từ thư mục chứa tệp này. kieu: lon | lon-trang | dai | dai-toi | nho. co = cỡ so với co_chu. canh: trai | phai. suong = độ sáng quầng sau khối chữ (0..1). logo.the = true: đặt logo trong thẻ trắng bo góc (dùng khi nền rối/tối). Ảnh nền to hơn W×H vẫn được tự phủ đúng khung. Mở ảnh nền xem đầu người nằm đâu rồi mới đặt khoi. kieu_chu: nghieng-dam (mặc định) | dam | thanh-lich. nen_toi = true khi ảnh nền tối (chữ nhỏ thành trắng). mau = màu LẤY TỪ LOGO HÃNG (đừng để màu mẫu #EB4B28). Ra cả .png và .jpg (JPG 92 để giao). Mẫu anh-do-hoa-1: cho cảnh dựng bằng code (dung-canh-bang-code.py) và cảnh ghép — kieu_chu phang (phẳng, không viền), mau_nhan = màu thứ hai của bao bì (dấu tích, nút, chữ nhấn), dòng y = 1 ý lợi ích có dấu tích, dòng nut = nút kêu gọi; khối chữ phải nằm trong VÙNG CHỪA CHỮ máy dựng cảnh in ra.",
  "anh-doc-1": {
   "nen": "../sua/canh-1.png",
   "W": 1080,
@@ -67,5 +67,45 @@
    }
   ],
   "web": "tenhang.vn"
+ },
+ "anh-do-hoa-1": {
+  "nen": "../ve/canh-1-1920x1080.png",
+  "W": 1920,
+  "H": 1080,
+  "khoi": "left:110px;top:150px",
+  "co_chu": 128,
+  "canh": "trai",
+  "mau": "#b01820",
+  "mau_nhan": "#e8b848",
+  "mau_toi": "#2a1410",
+  "nen_toi": true,
+  "kieu_chu": "phang",
+  "dong": [
+   {
+    "kieu": "dai",
+    "chu": "Cà phê rang xay 3in1",
+    "co": 0.36
+   },
+   {
+    "kieu": "lon",
+    "chu": "Đậm vị"
+   },
+   {
+    "kieu": "lon-trang",
+    "chu": "mỗi sáng"
+   },
+   {
+    "kieu": "y",
+    "chu": "Lợi ích thật 1 từ trang hãng"
+   },
+   {
+    "kieu": "y",
+    "chu": "Lợi ích thật 2 từ trang hãng"
+   },
+   {
+    "kieu": "nut",
+    "chu": "Xem tại tenhang.vn"
+   }
+  ]
  }
 }

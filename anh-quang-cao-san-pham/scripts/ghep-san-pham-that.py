@@ -5,6 +5,8 @@
 #   --tam-x : giữa sản phẩm nằm ở đâu theo chiều ngang (0 = mép trái, 1 = mép phải)
 #   --day-y : đáy sản phẩm chạm mặt bàn ở đâu theo chiều dọc (0 = trên cùng, 1 = dưới cùng)
 #   --bong  : bóng đổ về phía nào (ngược phía nguồn sáng của cảnh). Mặc định phải (đèn bên trái).
+#   --hoa-mau: kéo màu/độ sáng sản phẩm về tông cảnh quanh chỗ đặt (0 = giữ nguyên ảnh hãng, mặc định 0.3).
+#              Không có bước này sản phẩm sáng/lạnh hơn cảnh, nhìn như dán (sách ghép cảnh tối ấm 16/11/2026).
 import sys
 if sys.platform == 'win32':  # in tiếng Việt qua ống không vỡ (Windows mặc định cp1252)
     sys.stdout.reconfigure(encoding='utf-8'); sys.stderr.reconfigure(encoding='utf-8')
@@ -18,6 +20,7 @@ ap.add_argument('--tam-x', type=float, default=0.5)
 ap.add_argument('--day-y', type=float, default=0.75)
 ap.add_argument('--bong', default='phai', choices=['phai', 'trai', 'khong'])
 ap.add_argument('--dam', type=float, default=1.0, help='độ đậm bóng (0.5 nhạt … 1.5 đậm)')
+ap.add_argument('--hoa-mau', type=float, default=0.3, help='0..1: kéo tông sản phẩm về tông cảnh quanh chỗ đặt')
 a = ap.parse_args()
 
 nen = Image.open(a.nen).convert('RGB'); W, H = nen.size
@@ -29,8 +32,24 @@ ti = h / vat.height  # >0,8 = hiện gần bằng / to hơn ảnh gốc → mờ
 if ti > 0.8:
     print(f'CẢNH BÁO sản phẩm hiện bằng {ti:.0%} cỡ ảnh gốc ({vat.width}x{vat.height}) → sẽ MỜ. '
           f'Hạ --cao xuống ≤ {0.8 * vat.height / H:.2f}, hoặc xin ảnh hãng to + nét hơn (chụp sản phẩm thật, file thiết kế bao bì).')
+toi_thieu = 0.5 if W > H * 1.2 else 0.36 if H > W * 1.5 else 0.42  # ảnh học viên 16/11: sách cao 33–40% khung trên bàn trống → "xấu", khách không thấy sản phẩm
+if a.cao < toi_thieu:
+    print(f'CẢNH BÁO sản phẩm NHỎ: cao {a.cao:.0%} khung (ảnh {W}x{H} nên ≥ {toi_thieu:.0%}). Lướt điện thoại sẽ không thấy sản phẩm. '
+          'Tăng --cao; cảnh không cho phép (sản phẩm to quá so với đồ vật quanh) → vẽ lại cảnh CẬN hơn (máy đặt thấp, sát mặt bàn), KHÔNG giao ảnh có cảnh báo này.')
 vat = vat.resize((w, h), Image.LANCZOS)
 x = round(W * a.tam_x - w / 2); y = round(H * a.day_y - h)
+hm = min(max(a.hoa_mau, 0), 1)
+quanh_hop = (max(0, x - w // 2), max(0, y), min(W, x + w + w // 2), min(H, y + h))
+if hm > 0 and quanh_hop[2] > quanh_hop[0] and quanh_hop[3] > quanh_hop[1]:
+    # Khớp tông: hệ số mỗi kênh CHỈ lấy từ sắc của cảnh (ấm/lạnh so với xám trung tính), áp đều lên sản phẩm.
+    # Không chia cho màu trung bình của sản phẩm: sản phẩm đỏ có kênh xanh ~0 ⇒ hệ số vọt ~13 lần, chữ trắng ngả xanh (soát 16/11/2026).
+    from PIL import ImageStat
+    mc = ImageStat.Stat(nen.crop(quanh_hop)).mean; mv = ImageStat.Stat(vat.convert('RGB'), vat.getchannel('A')).mean
+    sang_c, sang_v = max(sum(mc) / 3, 1), max(sum(mv) / 3, 1)
+    sang = 1 + hm * 0.5 * (min(max(sang_c / sang_v, 0.7), 1.15) - 1)  # độ sáng, kéo nhẹ, không tối quá 15%
+    he = [min(max(1 + hm * (c / sang_c - 1), 0.85), 1.15) * sang for c in mc]
+    r, g, b, al = vat.split()
+    vat = Image.merge('RGBA', [ch.point(lambda v, k=k: min(255, round(v * k))) for ch, k in zip((r, g, b), he)] + [al])
 alpha = vat.getchannel('A')
 lop = Image.new('RGBA', (W, H), (0, 0, 0, 0))
 
@@ -49,11 +68,11 @@ if a.bong != 'khong':
     den = Image.new('RGBA', (W, H), (25, 20, 15, 0)); den.putalpha(toan)
     lop.alpha_composite(den)
 
-# 2) Bóng sát đáy: elip mờ ngay dưới chân sản phẩm (không có bóng này nhìn như "dán").
-el = Image.new('L', (W, H), 0)
-ImageDraw.Draw(el).ellipse((x + w * 0.02, y + h - h * 0.025, x + w * 0.98, y + h + h * 0.025), fill=int(150 * a.dam))
-el = el.filter(ImageFilter.GaussianBlur(max(2, h * 0.012)))
-den = Image.new('RGBA', (W, H), (20, 15, 10, 0)); den.putalpha(el)
+# 2) Bóng chạm: chính hình sản phẩm dịch xuống ~1% và làm mờ ⇒ bóng bám ĐÚNG mép đáy (đáy nghiêng 3/4 cũng chạm bàn).
+#    Elip nằm ngang cũ để hở phần đáy cao hơn ⇒ sản phẩm trông lơ lửng (sách ghép 16/11/2026).
+cham = Image.new('L', (W, H), 0); cham.paste(alpha.point(lambda v: int(v * 0.75 * min(a.dam, 1.3))), (x, y + max(2, round(h * 0.012))))
+cham = cham.filter(ImageFilter.GaussianBlur(max(2, h * 0.008)))
+den = Image.new('RGBA', (W, H), (20, 15, 10, 0)); den.putalpha(cham)
 lop.alpha_composite(den)
 
 lop.alpha_composite(vat, (x, y))
