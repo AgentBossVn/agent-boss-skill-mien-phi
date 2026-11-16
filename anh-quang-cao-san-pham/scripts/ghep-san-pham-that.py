@@ -38,13 +38,16 @@ if a.cao < toi_thieu:
           'Tăng --cao; cảnh không cho phép (sản phẩm to quá so với đồ vật quanh) → vẽ lại cảnh CẬN hơn (máy đặt thấp, sát mặt bàn), KHÔNG giao ảnh có cảnh báo này.')
 vat = vat.resize((w, h), Image.LANCZOS)
 x = round(W * a.tam_x - w / 2); y = round(H * a.day_y - h)
-if a.hoa_mau > 0:  # khớp tông: nhân từng kênh màu theo tỉ lệ (màu trung bình cảnh quanh chỗ đặt / màu trung bình sản phẩm)
+hm = min(max(a.hoa_mau, 0), 1)
+quanh_hop = (max(0, x - w // 2), max(0, y), min(W, x + w + w // 2), min(H, y + h))
+if hm > 0 and quanh_hop[2] > quanh_hop[0] and quanh_hop[3] > quanh_hop[1]:
+    # Khớp tông: hệ số mỗi kênh CHỈ lấy từ sắc của cảnh (ấm/lạnh so với xám trung tính), áp đều lên sản phẩm.
+    # Không chia cho màu trung bình của sản phẩm: sản phẩm đỏ có kênh xanh ~0 ⇒ hệ số vọt ~13 lần, chữ trắng ngả xanh (soát 16/11/2026).
     from PIL import ImageStat
-    quanh = nen.crop((max(0, x - w // 2), max(0, y), min(W, x + w + w // 2), min(H, y + h)))
-    mc = ImageStat.Stat(quanh).mean; mv = ImageStat.Stat(vat.convert('RGB'), vat.getchannel('A')).mean
+    mc = ImageStat.Stat(nen.crop(quanh_hop)).mean; mv = ImageStat.Stat(vat.convert('RGB'), vat.getchannel('A')).mean
     sang_c, sang_v = max(sum(mc) / 3, 1), max(sum(mv) / 3, 1)
-    he = [1 + a.hoa_mau * ((c / sang_c) / max(v / sang_v, 1e-3) - 1) for c, v in zip(mc, mv)]  # sắc (ấm/lạnh)
-    he = [k * (1 + a.hoa_mau * 0.5 * (min(sang_c / sang_v, 1.15) - 1)) for k in he]  # độ sáng, kéo nhẹ hơn sắc
+    sang = 1 + hm * 0.5 * (min(max(sang_c / sang_v, 0.7), 1.15) - 1)  # độ sáng, kéo nhẹ, không tối quá 15%
+    he = [min(max(1 + hm * (c / sang_c - 1), 0.85), 1.15) * sang for c in mc]
     r, g, b, al = vat.split()
     vat = Image.merge('RGBA', [ch.point(lambda v, k=k: min(255, round(v * k))) for ch, k in zip((r, g, b), he)] + [al])
 alpha = vat.getchannel('A')
