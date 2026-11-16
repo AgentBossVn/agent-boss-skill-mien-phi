@@ -69,7 +69,7 @@ def cap_nhat():
         kq['cau_cap_nhat'] = f'Cập nhật skill {TEN} từ https://github.com/{REPO}'
     cha = os.path.dirname(SKILL_DIR)   # thư mục chứa các skill đã cài
     da_co = set(os.listdir(cha)) if os.path.isdir(cha) else set()
-    kq['skill_khac_chua_cai'] = [d for d in c.get('ds', []) if not d.startswith(('.', 'nguon', 'kiem-thu')) and d not in da_co][:6]
+    kq['skill_khac_chua_cai'] = [d for d in c.get('ds', []) if not d.startswith(('.', 'nguon', 'kiem-thu', 'vi-du')) and d not in da_co][:6]
     return kq
 
 
