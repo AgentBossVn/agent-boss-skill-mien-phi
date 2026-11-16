@@ -1,6 +1,6 @@
-# Kho skill miễn phí của Agent Boss
+# Kho skill của Agent Boss
 
-Đây là nơi Agent Boss chia sẻ các skill miễn phí cho bạn mang về dùng. Hiểu đơn giản thì skill là bộ hướng dẫn kèm công cụ để Agent trên máy bạn (như Claude Code, Codex hay Antigravity) tự làm trọn một việc từ đầu đến cuối.
+Đây là nơi Agent Boss chia sẻ các skill cho bạn mang về dùng. Hiểu đơn giản thì skill là bộ hướng dẫn kèm công cụ để Agent trên máy bạn (như Claude Code, Codex hay Antigravity) tự làm trọn một việc từ đầu đến cuối.
 
 Hiện tại kho có 1 skill là **Ảnh quảng cáo sản phẩm** nằm trong thư mục `anh-quang-cao-san-pham`. Các skill khác mình sẽ thêm dần vào đây.
 
@@ -34,13 +34,13 @@ Bạn chỉ cần có Claude Code (hoặc Codex, Antigravity) chạy trên máy 
 Bạn mở Agent lên, nhắn nguyên câu này để Agent tự tải về đúng chỗ:
 
 ```text
-Cài skill anh-quang-cao-san-pham từ https://github.com/AgentBossVn/agent-boss-skill-mien-phi
+Cài skill anh-quang-cao-san-pham từ https://github.com/AgentBossVn/agent-boss-skills
 ```
 
 Khi muốn cập nhật bản mới, bạn nhắn:
 
 ```text
-Cập nhật skill anh-quang-cao-san-pham từ https://github.com/AgentBossVn/agent-boss-skill-mien-phi
+Cập nhật skill anh-quang-cao-san-pham từ https://github.com/AgentBossVn/agent-boss-skills
 ```
 
 ## Cách dùng
