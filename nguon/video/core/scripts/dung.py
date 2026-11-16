@@ -430,10 +430,10 @@ if tieng:
     fc.append(''.join(tieng) + f'amix=inputs={len(tieng)}:normalize=0:duration=longest,atrim=duration={TONG:.3f},alimiter=limit=0.95[aout]')
 else:
     fc.append('[0:a]anull[aout]')
-with open(os.path.join(TMP, 'filter.txt'), 'w', encoding='utf-8') as fh:
+with open(os.path.join(TMP, 'filter.txt'), 'w', encoding='utf-8') as fh:   # chỉ để xem lại khi gỡ lỗi
     fh.write(';\n'.join(fc))
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
-run(['ffmpeg', '-y', '-v', 'error'] + vao + ['-filter_complex_script', os.path.join(TMP, 'filter.txt'), '-map', '[vout]',
+run(['ffmpeg', '-y', '-v', 'error'] + vao + ['-filter_complex', ';'.join(fc), '-map', '[vout]',
                                           '-map', '[aout]', '-frames:v', str(round(TONG * FPS)), '-c:v', 'libx264', '-preset', 'medium',
                                           '-crf', '19', '-r', str(FPS), '-pix_fmt', 'yuv420p'] + AENC + ['-movflags', '+faststart', OUT])
 
