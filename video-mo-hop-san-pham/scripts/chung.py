@@ -22,8 +22,9 @@ ENC = ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '17', '-r', str(FPS), '
 AENC = ['-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-ac', '2']
 
 
-def run(cmd, nhi_phan=False):
-    r = subprocess.run(cmd, capture_output=True) if nhi_phan else subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
+def run(cmd, nhi_phan=False, du_lieu=None):
+    nhi_phan = nhi_phan or du_lieu is not None   # du_lieu: bytes đưa vào stdin của lệnh
+    r = subprocess.run(cmd, input=du_lieu, capture_output=True) if nhi_phan else subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
     if r.returncode != 0:
         loi = r.stderr.decode('utf-8', 'replace') if nhi_phan else r.stderr
         raise SystemExit(f'Lỗi khi chạy: {" ".join(cmd[:6])}...\n{loi[-1500:]}')

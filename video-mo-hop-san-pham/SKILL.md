@@ -3,7 +3,7 @@ name: video-mo-hop-san-pham
 description: Biến video quay sản phẩm (mở hộp, cận cảnh, dùng thử — có hoặc không có lời) thành video bán hàng TikTok Shop/Shopee Video/Reels dọc đăng được ngay — chọn cảnh đẹp nhất, nhịp nhanh, giọng đọc AI tiếng Việt, phụ đề kiểu karaoke, chữ giá to, lời kêu gọi bấm giỏ hàng, thẻ kết thương hiệu. Dùng khi người dùng có clip sản phẩm và muốn "làm video bán hàng", "video affiliate", "video giỏ hàng".
 metadata:
   author: Mai Xuân Đạt — Agent Boss
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Video mở hộp / sản phẩm
@@ -82,7 +82,6 @@ Phân tích còn ghi `mat` (vị trí mặt người nói mỗi giây, để ph�
   "doan": [{"file": "../clip1.mp4", "tu": 2.0, "den": 9.5}],
   "chu": [{"tu": 0, "den": 2.6, "noi_dung": "ĐỪNG MUA NỒI CHIÊN NẾU CHƯA XEM", "kieu": "mo_dau"}],
   "giong_doc": null,
-  "nhac": null,
   "sua_chu": {"cờ lốt": "Claude", "dịch ứng": "dị ứng"},
   "tu_khoa": ["giảm giá", "miễn phí"],
   "chen_anh": [{"tu": 8, "den": 12, "anh": "anh/1.jpg"}],
@@ -93,7 +92,7 @@ Phân tích còn ghi `mat` (vị trí mặt người nói mỗi giây, để ph�
 - `doan`: giây trên video gốc, theo đúng thứ tự muốn xuất hiện. Đường dẫn tính từ thư mục chứa `ke-hoach.json`. Đặt `tu` đúng giờ chữ đầu câu trong `loi_noi` (lùi chừng 0,05 giây), đặt `den` ngay sau chữ cuối: đặt lệch là kéo theo nửa chữ của câu bên cạnh.
 - `chu`: giây trên **video mới**. `"den": "het"` là tới cuối phần thân. `kieu` lấy theo bảng kiểu chữ của skill này.
 - `giong_doc`: `{"van_ban": "...", "giong": "vi-VN-HoaiMyNeural"}` (nữ) hoặc `vi-VN-NamMinhNeural` (nam). Viết lời đọc như người nói chuyện, câu ngắn. Khoảng 3,5 chữ mỗi giây.
-- `nhac`: bỏ trống thì dùng nhạc trong hồ sơ thương hiệu; không có thì không lót nhạc. **Chỉ dùng nhạc người dùng có quyền dùng.** Video đã có nhạc sẵn thì để `"nhac": null`.
+- `nhac`: đường dẫn nhạc người dùng đưa. Bỏ trống thì dùng nhạc trong hồ sơ thương hiệu; không có nữa thì kiểu video có lời (phụ đề to, mở hộp sản phẩm) **tự tạo nhạc nền** bằng code (không bản quyền, mỗi video một giai điệu). Video đã có nhạc sẵn hoặc người dùng không muốn nhạc thì để `"nhac": false`. **Chỉ dùng nhạc người dùng có quyền dùng**: không tự lấy nhạc trên mạng, không lấy nhạc của người khác trong máy.
 - `sua_chu`: máy nghe sai chữ nào (tên riêng, tên sản phẩm, từ tiếng Anh) thì sửa ở đây. Đọc kỹ `van_ban` trong phân tích để bắt lỗi. Khoá viết đúng như máy nghe, được nhiều chữ; nên ghi cả cụm (`"dịch ứng"`) thay vì 1 chữ (`"dịch"`) để không sửa nhầm chỗ khác. Chữ sửa có chữ hoa ở giữa (`OKRs`, `iPhone`) giữ nguyên kiểu viết, còn lại (kể cả `Claude`) viết hoa như phụ đề.
 - `chen_anh` (tuỳ chọn): ảnh minh hoạ phủ kín khung trong lúc lời nói vẫn chạy, có chuyển động chậm (`"chuyen_dong"`: `zoom_in`, `zoom_out` hoặc `lia`; bỏ trống thì tự xoay vòng). `tu`/`den` là giây trên video mới (xem bằng `--chi-thoi-gian`), mỗi ảnh 3–7 giây, đặt đúng lúc người nói kể chuyện có hình dung được. Ảnh dọc 9:16 là đẹp nhất. **Chỉ dùng ảnh người dùng có quyền dùng** (ảnh của họ, ảnh họ tự tạo bằng AI).
 - `vi_tri_phu_de` (tuỳ chọn): đặt cứng vị trí phụ đề theo chiều cao, 0–1, không đặt số lớn hơn `0.78` (sát đáy sẽ đè tên kênh, chú thích của TikTok). Thường không cần: đã cài OpenCV thì phụ đề tự né mặt (xuống dưới cằm, không đủ chỗ thì lên trên đầu, vẫn chật thì thu nhỏ chữ).

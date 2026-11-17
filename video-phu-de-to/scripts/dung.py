@@ -18,6 +18,7 @@ from PIL import Image, ImageDraw, ImageFont
 from phan_tich import cho_lang
 from mau_tieng import bo_can, to_sau_can
 from tim_mat import khung_mat
+from tao_nhac import tao_nhac
 
 KH_PATH = os.path.abspath(sys.argv[1])
 GOC = os.path.dirname(KH_PATH)
@@ -121,10 +122,14 @@ if len(dung_vung) > 1 and P.get('giu_tieng_goc', True):
     CAN = [bo_can(vg[v][2], dich, to_dich - to[v]) if v else '' for v in SEG_VUNG]
     log(f'Cân tiếng {len(dung_vung)} vùng (video gốc đổi micro/lọc ồn giữa chừng)')
 
-NHAC = duong(KH['nhac']) if KH.get('nhac') else (TH.get('nhac') and os.path.expanduser(TH['nhac']))
+NHAC = None if KH.get('nhac') is False else (duong(KH['nhac']) if KH.get('nhac') else (TH.get('nhac') and os.path.expanduser(TH['nhac'])))
 if NHAC and not os.path.exists(NHAC):
     log(f'Không thấy file nhạc {NHAC} → dựng không nhạc')
     NHAC = None
+if not NHAC and KH.get('nhac') is not False and P.get('nhac', {}).get('tu_tao'):
+    # không có nhạc riêng → tự tạo nhạc nền (không bản quyền); "nhac": false trong kế hoạch = không lót nhạc
+    NHAC = tao_nhac(300, os.path.join(TMP, 'nhac-tu-tao.wav'), os.path.basename(GOC))
+    log('Tự tạo nhạc nền (không bản quyền)')
 if P.get('khop_nhip') and NHAC:  # cắt mỗi cảnh đúng vào phách nhạc
     nhip = tim_nhip(NHAC)
     if len(nhip) > 4:

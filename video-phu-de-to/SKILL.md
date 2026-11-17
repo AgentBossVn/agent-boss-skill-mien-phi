@@ -3,7 +3,7 @@ name: video-phu-de-to
 description: Dựng video nói chuyện/chia sẻ (người nói trước camera, podcast, livestream) thành video TikTok/Reels/Shorts dọc đăng được ngay — cắt hết chỗ lặng và ấp úng, phụ đề tiếng Việt chữ to giữa khung tô màu từ khoá, đổi khung phóng to/thu nhỏ giữ nhịp, câu đắt nhất đưa lên đầu, nhạc nền nhỏ, thẻ kết thương hiệu. Dùng khi người dùng có video tự quay đang nói và muốn "edit lại đăng TikTok", "làm phụ đề", "cắt cho gọn".
 metadata:
   author: Mai Xuân Đạt — Agent Boss
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Video phụ đề to (nói chuyện, chia sẻ)
@@ -19,7 +19,7 @@ metadata:
 4. **Từ khoá:** chọn 5–10 từ/cụm đắt (con số, kết quả, nỗi đau) cho `tu_khoa`: phụ đề sẽ tô màu nhấn; cụm ≤ 2 chữ có từ khoá hiện to và nghiêng.
 5. **Chữ nhấn giữa video (tuỳ chọn):** kiểu `nhan` cho tiêu đề phụ khi chuyển ý ("BƯỚC 2", "SAI LẦM SỐ 1").
 6. **Ảnh minh hoạ chèn xen:** video chỉ có mặt người nói từ đầu tới cuối rất dễ bị lướt qua. Mỗi 10–20 giây chèn 1 ảnh (`chen_anh`) minh hoạ đúng chuyện đang kể, 3–7 giây mỗi ảnh. Không có ảnh thì hỏi người dùng có muốn tạo không, đừng tự bịa ảnh không khớp lời.
-7. **Nhạc:** nhẹ, lót suốt video dưới giọng nói. Nên có: video chỉ có giọng nói nghe trống. Không có nhạc có quyền dùng thì để trống.
+7. **Nhạc:** nhẹ, lót suốt video dưới giọng nói. Nên có: video chỉ có giọng nói nghe trống. Người dùng không đưa nhạc thì skill tự tạo nhạc nền (không bản quyền); không muốn nhạc thì `"nhac": false`.
 8. **Thẻ kết:** bật (`"the_ket": true`) — tên kênh + câu kêu gọi từ hồ sơ thương hiệu.
 
 ## Kiểu chữ có trong skill này
@@ -76,7 +76,6 @@ Phân tích còn ghi `mat` (vị trí mặt người nói mỗi giây, để ph�
   "doan": [{"file": "../clip1.mp4", "tu": 2.0, "den": 9.5}],
   "chu": [{"tu": 0, "den": 2.6, "noi_dung": "ĐỪNG MUA NỒI CHIÊN NẾU CHƯA XEM", "kieu": "mo_dau"}],
   "giong_doc": null,
-  "nhac": null,
   "sua_chu": {"cờ lốt": "Claude", "dịch ứng": "dị ứng"},
   "tu_khoa": ["giảm giá", "miễn phí"],
   "chen_anh": [{"tu": 8, "den": 12, "anh": "anh/1.jpg"}],
@@ -87,7 +86,7 @@ Phân tích còn ghi `mat` (vị trí mặt người nói mỗi giây, để ph�
 - `doan`: giây trên video gốc, theo đúng thứ tự muốn xuất hiện. Đường dẫn tính từ thư mục chứa `ke-hoach.json`. Đặt `tu` đúng giờ chữ đầu câu trong `loi_noi` (lùi chừng 0,05 giây), đặt `den` ngay sau chữ cuối: đặt lệch là kéo theo nửa chữ của câu bên cạnh.
 - `chu`: giây trên **video mới**. `"den": "het"` là tới cuối phần thân. `kieu` lấy theo bảng kiểu chữ của skill này.
 - `giong_doc`: `{"van_ban": "...", "giong": "vi-VN-HoaiMyNeural"}` (nữ) hoặc `vi-VN-NamMinhNeural` (nam). Viết lời đọc như người nói chuyện, câu ngắn. Khoảng 3,5 chữ mỗi giây.
-- `nhac`: bỏ trống thì dùng nhạc trong hồ sơ thương hiệu; không có thì không lót nhạc. **Chỉ dùng nhạc người dùng có quyền dùng.** Video đã có nhạc sẵn thì để `"nhac": null`.
+- `nhac`: đường dẫn nhạc người dùng đưa. Bỏ trống thì dùng nhạc trong hồ sơ thương hiệu; không có nữa thì kiểu video có lời (phụ đề to, mở hộp sản phẩm) **tự tạo nhạc nền** bằng code (không bản quyền, mỗi video một giai điệu). Video đã có nhạc sẵn hoặc người dùng không muốn nhạc thì để `"nhac": false`. **Chỉ dùng nhạc người dùng có quyền dùng**: không tự lấy nhạc trên mạng, không lấy nhạc của người khác trong máy.
 - `sua_chu`: máy nghe sai chữ nào (tên riêng, tên sản phẩm, từ tiếng Anh) thì sửa ở đây. Đọc kỹ `van_ban` trong phân tích để bắt lỗi. Khoá viết đúng như máy nghe, được nhiều chữ; nên ghi cả cụm (`"dịch ứng"`) thay vì 1 chữ (`"dịch"`) để không sửa nhầm chỗ khác. Chữ sửa có chữ hoa ở giữa (`OKRs`, `iPhone`) giữ nguyên kiểu viết, còn lại (kể cả `Claude`) viết hoa như phụ đề.
 - `chen_anh` (tuỳ chọn): ảnh minh hoạ phủ kín khung trong lúc lời nói vẫn chạy, có chuyển động chậm (`"chuyen_dong"`: `zoom_in`, `zoom_out` hoặc `lia`; bỏ trống thì tự xoay vòng). `tu`/`den` là giây trên video mới (xem bằng `--chi-thoi-gian`), mỗi ảnh 3–7 giây, đặt đúng lúc người nói kể chuyện có hình dung được. Ảnh dọc 9:16 là đẹp nhất. **Chỉ dùng ảnh người dùng có quyền dùng** (ảnh của họ, ảnh họ tự tạo bằng AI).
 - `vi_tri_phu_de` (tuỳ chọn): đặt cứng vị trí phụ đề theo chiều cao, 0–1, không đặt số lớn hơn `0.78` (sát đáy sẽ đè tên kênh, chú thích của TikTok). Thường không cần: đã cài OpenCV thì phụ đề tự né mặt (xuống dưới cằm, không đủ chỗ thì lên trên đầu, vẫn chật thì thu nhỏ chữ).

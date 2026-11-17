@@ -81,9 +81,13 @@ json.dump({'dau_ra': 'thanh-pham/video.mp4', 'thuong_hieu': '../thuong-hieu.json
            'chu': [{'tu': 0, 'den': 2.8, 'noi_dung': 'NHÀ CHẬT VẪN CHIÊN KHÔNG DẦU?', 'kieu': 'mo_dau'},
                    {'tu': 6, 'den': 9, 'noi_dung': '890K', 'kieu': 'gia'},
                    {'tu': 10, 'den': 'het', 'noi_dung': 'BẤM GIỎ HÀNG NGAY', 'kieu': 'cta'}],
-           'giong_doc': {'file': '../giong.mp3'}, 'nhac': '../nhac.mp3'},
+           'giong_doc': {'file': '../giong.mp3'}},   # không đưa nhạc → skill tự tạo nhạc nền
           open(os.path.join(w, 'ke-hoach.json'), 'w', encoding='utf-8'), ensure_ascii=False)
-print(chay('video-mo-hop-san-pham', 'dung.py', os.path.join(w, 'ke-hoach.json')))
+ra = chay('video-mo-hop-san-pham', 'dung.py', os.path.join(w, 'ke-hoach.json'))
+print(ra)
+if '"nhac": true' not in ra:
+    print('  SAI không tự tạo nhạc nền')
+    ok = False
 ok &= kiem(os.path.join(w, 'thanh-pham', 'video.mp4'), 15, 16)
 
 # --- 3. ghép nhạc vlog ---
