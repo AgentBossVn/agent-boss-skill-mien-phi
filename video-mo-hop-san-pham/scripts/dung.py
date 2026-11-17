@@ -384,6 +384,8 @@ _TT = {}
 
 def mat_luc(t1, t2):
     """(đỉnh mặt cao nhất, đáy cằm thấp nhất) trong khoảng t1–t2 của video mới; không thấy mặt thì None."""
+    if any(float(c['tu']) < t2 and float(c['den']) > t1 for c in KH.get('chen_anh', [])):
+        return None   # đang chiếu ảnh minh hoạ phủ kín khung: mặt người nói bị che, phụ đề về chỗ mặc định
     ds = []
     for i, (f, a, b, ra) in enumerate(segs):
         if ra < t2 and ra + (b - a) > t1:
