@@ -62,7 +62,8 @@ cau = 'Hôm nay tôi chia sẻ ba sai lầm khi làm OKRs. Sai lầm đầu tiê
 d['loi_noi'] = [[round(0.1 + (i // 4) * 2.3 + (i % 4) * 0.35, 2), round(0.4 + (i // 4) * 2.3 + (i % 4) * 0.35, 2), x] for i, x in enumerate(cau)]
 json.dump(d, open(pt, 'w', encoding='utf-8'), ensure_ascii=False)
 json.dump({'dau_ra': 'thanh-pham/video.mp4', 'thuong_hieu': '../thuong-hieu.json',
-           'doan': [{'file': '../noi.mp4', 'tu': 4.6, 'den': 6.2}, {'file': '../noi.mp4', 'tu': 0, 'den': 12}],
+           'doan': [{'file': '../noi.mp4', 'tu': 4.6, 'den': 6.2, 'khung_tv': True}, {'file': '../noi.mp4', 'tu': 0, 'den': 12}],
+           'phat_sang': ['SAI LẦM', '70%'],
            'chu': [{'tu': 0, 'den': 2.5, 'noi_dung': '3 SAI LẦM KHI LÀM OKRs', 'kieu': 'mo_dau'}],
            'tu_khoa': ['sai lầm', 'okrs'], 'sua_chu': {'okrs': 'OKRs'}, 'nhac': '../nhac.mp3',
            'chen_anh': [{'tu': 3, 'den': 6.5, 'anh': '../anh.png'}, {'tu': 7, 'den': 9, 'anh': '../anh.png', 'chuyen_dong': 'lia'}]},
@@ -70,6 +71,24 @@ json.dump({'dau_ra': 'thanh-pham/video.mp4', 'thuong_hieu': '../thuong-hieu.json
 print(chay('video-phu-de-to', 'dung.py', os.path.join(w, 'ke-hoach.json'), '--chi-thoi-gian'))
 print(chay('video-phu-de-to', 'dung.py', os.path.join(w, 'ke-hoach.json')))
 ok &= kiem(os.path.join(w, 'thanh-pham', 'video.mp4'), 11, 14)   # 12s gốc − ~2,6s lặng + 1,6s trích trước + 2,5s thẻ kết
+
+# --- 1b. podcast: video ngang, tiêu đề cố định, thẻ tên, phụ đề dưới khung ---
+print('video-phu-de-to (podcast)')
+ff('-f', 'lavfi', '-i', 'testsrc2=s=1280x720:r=30:d=10', '-f', 'lavfi', '-i', 'sine=f=220:r=48000:d=10', '-shortest',
+   '-c:v', 'libx264', '-pix_fmt', 'yuv420p', f'{T}/pod.mp4')
+w = os.path.join(T, 'w4')
+chay('video-phu-de-to', 'phan_tich.py', f'{T}/pod.mp4', '--ra', w, '--khong-nghe')
+pt = os.path.join(w, 'phan-tich', 'pod.json')
+d = json.load(open(pt, encoding='utf-8'))
+cau = 'Hôm nay chúng ta nói về cách đặt mục tiêu cho cả đội. Giảm 70% việc thừa nhờ chọn đúng ba mục tiêu'.split()
+d['loi_noi'] = [[round(0.2 + (i // 4) * 1.8 + (i % 4) * 0.4, 2), round(0.5 + (i // 4) * 1.8 + (i % 4) * 0.4, 2), x] for i, x in enumerate(cau)]
+json.dump(d, open(pt, 'w', encoding='utf-8'), ensure_ascii=False)
+json.dump({'dau_ra': 'thanh-pham/video.mp4', 'thuong_hieu': '../thuong-hieu.json', 'bo_cuc': 'podcast',
+           'doan': [{'file': '../pod.mp4', 'tu': 0, 'den': 10}], 'nhac': False,
+           'tieu_de_co_dinh': ['BÍ QUYẾT ĐẶT MỤC TIÊU', 'CHO CẢ ĐỘI NGŨ'], 'the_ten': 'Nguyễn Văn An',
+           'tu_khoa': ['mục tiêu']}, open(os.path.join(w, 'ke-hoach.json'), 'w', encoding='utf-8'), ensure_ascii=False)
+print(chay('video-phu-de-to', 'dung.py', os.path.join(w, 'ke-hoach.json')))
+ok &= kiem(os.path.join(w, 'thanh-pham', 'video.mp4'), 8, 14)
 
 # --- 2. mở hộp sản phẩm ---
 print('video-mo-hop-san-pham')

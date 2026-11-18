@@ -26,3 +26,9 @@ description: Dựng video nói chuyện/chia sẻ (người nói trước camera
 | `mo_dau` | Câu mở đầu 3 giây đầu | Trên cao, chữ trắng viền đen |
 | `nhan` | Tiêu đề chuyển ý | Trên cao, nền màu nhấn |
 
+
+## Khoá tuỳ chọn trong kế hoạch (làm video bớt "nhạt")
+- Chữ `mo_dau` tự hiện từng chữ một (chữ trong `tu_khoa` tô màu nhấn và bật nảy); `"hien_dan": false` để tắt.
+- `"khung_tv": true` trên một `doan` (thường đoạn trích trước): đoạn đó nằm trong khung TV cũ, viền dày, vạch quét.
+- `"phat_sang": ["ĐẶT TRƯỚC", "15%"]` (tối đa 2 cụm): phụ đề chứa cụm đó có quầng sáng + sao lấp lánh.
+- Video NGANG (podcast/Zoom): `"bo_cuc": "podcast"`, `"tieu_de_co_dinh": ["DÒNG 1 (trắng)", "DÒNG 2 (màu nhấn)"]`, `"the_ten": "Tên người nói"` (thẻ tên 3 giây đầu). Phụ đề nhỏ nằm dưới khung video. Khung mặc định cắt giữa cho mặt to; video 2 người ngồi hai bên thì thêm `"giu_ngang": true` để giữ nguyên khung ngang. Câu mở đầu nằm ở dải tiêu đề, tiêu đề cố định hiện sau khi câu mở đầu hết.

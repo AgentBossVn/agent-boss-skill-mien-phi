@@ -32,3 +32,6 @@ description: Biến video quay sản phẩm (mở hộp, cận cảnh, dùng th�
 | `nhan` | Lợi ích ngắn ("5 LÍT", "CHỐNG DÍNH") | Trên cao, nền màu chính |
 | `cta` | Lời kêu gọi cuối | Dưới giữa, nền màu nhấn |
 
+
+## Khoá tuỳ chọn trong kế hoạch
+- Chữ `mo_dau` tự hiện từng chữ một (chữ trong `tu_khoa` tô màu nhấn và bật nảy); `"hien_dan": false` để tắt. `"phat_sang": ["ĐẶT TRƯỚC"]`: phụ đề chứa cụm đó có quầng sáng + sao (tối đa 2 cụm).

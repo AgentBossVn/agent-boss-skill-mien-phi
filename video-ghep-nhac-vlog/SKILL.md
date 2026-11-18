@@ -25,6 +25,10 @@ metadata:
 | `mo_dau` | Tiêu đề | Giữa khung, chữ to |
 | `dan_chuyen` | Câu dẫn chuyện | Dưới, chữ nhỏ |
 
+
+## Tự động theo preset
+- Mỗi cảnh mở đầu bằng cú phóng nhẹ, cứ cảnh thứ 4 loé trắng 2 khung; `"mau_sac": "am"` trong preset = tông màu ấm nhẹ (bỏ dòng đó nếu muốn màu gốc).
+
 ## Quy trình chung (mọi kiểu video)
 
 Mọi lệnh chạy từ thư mục của skill này (thư mục chứa file SKILL.md). Gọi `<SKILL>` là đường dẫn thư mục đó.
@@ -64,6 +68,8 @@ Thư mục làm việc: tạo `video-<ngày>-<tên ngắn>/` cạnh video của 
 
 Phân tích còn ghi `mat` (vị trí mặt người nói mỗi giây, để phụ đề tự né mặt) và `vung_tieng` (có giá trị nghĩa là video gốc đổi tiếng giữa chừng, thường do điện thoại đổi micro hoặc bật lọc ồn: giọng đang ồm bỗng mỏng). Cả hai `dung.py` tự xử lý, không cần ghi gì vào kế hoạch.
 
+Video dài thì máy in tiến độ "Đã nghe X/Y giây" mỗi phút. Máy tự bỏ khỏi phụ đề các câu máy nghe hay bịa ra ở đoạn lặng ("Hãy subscribe cho kênh…", "Cảm ơn các bạn đã theo dõi") và ghi lại từng câu đã bỏ; nếu người nói thật sự nói các câu đó thì chạy lại với `--khong-loc-bia`.
+
 ### Bước 3. Viết kế hoạch `ke-hoach.json` trong thư mục làm việc
 
 ```json
@@ -101,7 +107,8 @@ Ra `thanh-pham/video.mp4` (1080×1920, 30 hình/giây, tiếng chuẩn −14 LUF
 
 1. Trích 3 khung hình (đầu, giữa, cuối) bằng ffmpeg và **xem**: chữ có tràn mép, che mặt, sai dấu không. Có lỗi thì sửa kế hoạch và dựng lại.
 2. Viết `thanh-pham/chu-thich.txt`: 1 câu mở đầu gây tò mò + 2–3 dòng nội dung + lời kêu gọi + 4–6 hashtag tiếng Việt sát chủ đề (không nhồi hashtag chung chung).
-3. Báo người dùng: đường dẫn video, ảnh bìa, chú thích. Hỏi có muốn sửa gì không (đổi câu mở đầu, ngắn hơn, đổi nhạc).
+3. Làm bản khoe "trước – sau" (video gốc và thành phẩm chạy cạnh nhau 10 giây, đăng hoặc gửi khoe được ngay): `python3 <SKILL>/scripts/truoc_sau.py <thư-mục-làm-việc>/ke-hoach.json` → `thanh-pham/video-truoc-sau.mp4`.
+4. Báo người dùng: đường dẫn video, bản trước – sau, ảnh bìa, chú thích. Hỏi có muốn sửa gì không (đổi câu mở đầu, ngắn hơn, đổi nhạc).
 
 ### Luật chung
 
