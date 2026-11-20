@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="kho" content="1080x1350">
+<title>Bài đăng 4:5 (1080×1350)</title>
+<!-- SỬA CHỮ: 3 dòng tiêu đề (h1, dòng 1 màu nhấn), câu phụ (.phu), dòng giờ · ngày · hình thức (.gio), 3 thẻ (.the: b đậm + span nhạt), dòng cuối (.cuoi). Đừng sửa màu/font: lấy từ bộ nhận diện. -->
+{{font.link}}
+<style>
+  :root{--nen:{{mau.nen}};--chu:{{mau.chu_tren_nen}};--chu-phu:{{mau.chu_phu_tren_nen}};--nhan:{{mau.nhan}};--chu-nhan:{{mau.chu_tren_nhan}};--the:{{mau.the}};--sang:{{mau.nen_sang}};--muc:{{mau.muc}};--muc-phu:{{mau.muc_phu}};--nhan-mo:rgba({{mau.nhan_rgb}},.22);--nut:{{bo_goc.nut}};--card:{{bo_goc.the}};--dam:{{font.dam_tieu_de}};--font:{{font.css}}}
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1080px; height:1350px; overflow:hidden; background:var(--nen); }
+  body { font-family:var(--font); color:var(--chu); position:relative; }
+  .glow { position:absolute; left:560px; top:850px; width:620px; height:620px; border-radius:50%;
+          background:radial-gradient(circle, var(--nhan-mo) 0, transparent 70%); filter:blur(30px); }
+  .hinh { position:absolute; right:60px; top:900px; width:340px; height:340px; object-fit:contain; object-position:right center; }
+  .logo { position:absolute; left:72px; top:72px; height:56px; width:auto; max-width:420px; }
+  h1 { position:absolute; left:72px; top:210px; font-size:78px; white-space:nowrap; font-weight:var(--dam); line-height:1.05; letter-spacing:-.02em; }
+  h1 .m { color:var(--nhan); }
+  .phu { position:absolute; left:72px; top:470px; font-size:32px; color:var(--chu-phu); }
+  .gio { position:absolute; left:72px; top:530px; font-size:32px; font-weight:700; }
+  .gio i { font-style:normal; color:var(--nhan); margin:0 10px; }
+  .the-hang { position:absolute; left:72px; right:72px; top:620px; display:flex; gap:20px; }
+  .the { flex:1; background:var(--the); border-radius:var(--card); padding:28px 24px; }
+  .the b { display:block; font-size:32px; font-weight:700; line-height:1.2; }
+  .the span { display:block; font-size:28px; color:var(--chu-phu); margin-top:10px; line-height:1.3; }
+  .cuoi { position:absolute; left:72px; bottom:80px; font-size:32px; font-weight:700; }
+</style></head>
+<body>
+  <!--HINH--><div class="glow"></div>
+  <img class="hinh" src="{{hinh.tep}}" alt=""><!--/HINH-->
+  <img class="logo" src="{{logo.tren_nen}}" alt="{{ten}}">
+  <h1><span class="m">TIÊU ĐỀ DÒNG 1</span><br>TIÊU ĐỀ DÒNG 2<br>TIÊU ĐỀ DÒNG 3</h1>
+  <p class="phu">Một câu phụ giải thích ngắn gọn ý chính</p>
+  <p class="gio">19:30 <i>·</i> Thứ Năm, 26/11 <i>·</i> Trực tuyến</p>
+  <div class="the-hang">
+    <div class="the"><b>Ý chính 1</b><span>Dòng mô tả ngắn</span></div>
+    <div class="the"><b>Ý chính 2</b><span>Dòng mô tả ngắn</span></div>
+    <div class="the"><b>Ý chính 3</b><span>Dòng mô tả ngắn</span></div>
+  </div>
+  <p class="cuoi">{{web}}</p>
+<script>document.documentElement.style.zoom = Math.min(1, innerWidth / 1080);</script>
+</body></html>

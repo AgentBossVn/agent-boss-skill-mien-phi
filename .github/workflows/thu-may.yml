@@ -37,3 +37,5 @@ jobs:
           grep -q -e '|---|---|---|' kiem.txt && head -6 kiem.txt
       - name: Chạy bộ thử
         run: python kiem-thu/chay-thu.py
+      - name: Thử skill bộ nhận diện
+        run: python kiem-thu/thu-bo-nhan-dien.py

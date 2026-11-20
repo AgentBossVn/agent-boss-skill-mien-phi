@@ -1,0 +1,26 @@
+{
+  "ten": "Tên thương hiệu",
+  "phien_ban": "1.0",
+  "ngay": "2026-11-20",
+  "cau_dinh_vi": "Một câu: làm gì, cho ai",
+  "web": "tencongty.vn",
+  "mau": {
+    "nen": "#004AEF",
+    "chu_tren_nen": "#FFFFFF",
+    "chu_phu_tren_nen": "#DCE6FE",
+    "nhan": "#07EF9C",
+    "chu_tren_nhan": "#062A1C",
+    "the": "#0034B8",
+    "nen_sang": "#FFFFFF",
+    "muc": "#1F2430",
+    "muc_phu": "#4A5468"
+  },
+  "font": { "ten": "Be Vietnam Pro", "google_fonts": true, "dam_tieu_de": 700 },
+  "bo_goc": { "nut": "6px", "the": "12px" },
+  "logo": {
+    "tren_nen": "logo/logo-tren-nen.png",
+    "tren_nen_sang": "logo/logo-tren-nen-sang.png",
+    "vuong": "logo/bieu-tuong-vuong.png"
+  },
+  "hinh_dac_trung": { "tep": "logo/hinh-dac-trung.png", "mo_ta": "chi tiết lấy từ logo, vd: mũi tên đi lên" }
+}
