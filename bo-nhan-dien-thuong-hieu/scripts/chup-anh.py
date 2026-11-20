@@ -42,6 +42,7 @@ def chup(trinh_duyet: str, html: Path, png: Path, w: int, h: int) -> str:
     with tempfile.TemporaryDirectory(prefix='chup-anh-') as hs:
         lenh = [trinh_duyet, '--headless=new', f'--screenshot={png.resolve()}', f'--window-size={w},{h}', '--hide-scrollbars',
                 '--force-device-scale-factor=1', '--virtual-time-budget=4000', f'--user-data-dir={hs}', '--no-first-run',
+                '--use-mock-keychain', '--password-store=basic',  # không đụng Keychain Mac: khỏi bật hộp hỏi mật khẩu
                 '--disable-gpu', '--default-background-color=FFFFFFFF', html.resolve().as_uri()]
         try: p = subprocess.run(lenh, capture_output=True, timeout=90, stdin=subprocess.DEVNULL)
         except subprocess.TimeoutExpired: return 'trình duyệt chạy quá 90 giây'

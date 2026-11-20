@@ -54,7 +54,6 @@ def dung_bo_thu(thu: Path, co_hinh: bool) -> Path:
 def main():
     thu = Path(tempfile.mkdtemp(prefix='thu-bnd-')); home = thu / 'home'; home.mkdir()
     env = {k: v for k, v in os.environ.items() if k != 'CHROME'}
-    env_that = dict(env)  # trình duyệt dùng HOME thật (Chrome Mac treo khi HOME giả); chup-anh không đụng hồ sơ chung
     env['HOME'] = env['USERPROFILE'] = str(home)
     try:
         print('\n== 1. lay-mau.py')
@@ -142,13 +141,13 @@ def main():
         spec = importlib.util.spec_from_file_location('chup_anh', SC / 'chup-anh.py'); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
         if not m.tim_trinh_duyet(): print('  BỎ QUA: máy này không có Chrome/Edge/Brave/Chromium')
         else:
-            ma, ra = chay([SC / 'chup-anh.py', bo / 'mau'], env_that)
+            ma, ra = chay([SC / 'chup-anh.py', bo / 'mau'], env)
             khang_dinh(ma == 0, 'chụp cả thư mục mau/', ra)
             for n, (w, h) in zip(ten_mau, [(1080, 1350), (1080, 1920), (1200, 630), (1920, 1080), (1920, 1080), (794, 1123), (600, 200)]):
                 f = bo / 'mau' / 'xem-truoc' / f'{n}.png'
                 kt = struct.unpack('>II', f.read_bytes()[16:24]) if f.is_file() else None
                 khang_dinh(kt == (w, h), f'{n}.png đúng khổ {w}×{h} (thấy {kt})')
-            ma, ra = chay([SC / 'chup-anh.py', bo / 'mau' / 'story-9x16.html', '--ra', thu / 'le'], env_that)
+            ma, ra = chay([SC / 'chup-anh.py', bo / 'mau' / 'story-9x16.html', '--ra', thu / 'le'], env)
             khang_dinh(ma == 0 and (thu / 'le' / 'story-9x16.png').is_file(), 'chụp 1 tệp lẻ với --ra', ra)
     finally:
         shutil.rmtree(thu, ignore_errors=True)
