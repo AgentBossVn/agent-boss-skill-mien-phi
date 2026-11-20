@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="kho" content="794x1123">
+<title>Tài liệu A4 (794×1123)</title>
+<!-- SỬA CHỮ: tiêu đề tài liệu (h1), dòng phụ (.phu), các mục (h2 + đoạn p), chân trang (.chan). Logo ở đầu trang. -->
+{{font.link}}
+<style>
+  :root{--nen:{{mau.nen}};--chu:{{mau.chu_tren_nen}};--chu-phu:{{mau.chu_phu_tren_nen}};--nhan:{{mau.nhan}};--chu-nhan:{{mau.chu_tren_nhan}};--the:{{mau.the}};--sang:{{mau.nen_sang}};--muc:{{mau.muc}};--muc-phu:{{mau.muc_phu}};--nhan-mo:rgba({{mau.nhan_rgb}},.22);--nut:{{bo_goc.nut}};--card:{{bo_goc.the}};--dam:{{font.dam_tieu_de}};--font:{{font.css}}}
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:794px; height:1123px; overflow:hidden; background:var(--sang); }
+  body { font-family:var(--font); color:var(--muc); position:relative; }
+  .dau { position:absolute; left:64px; right:64px; top:56px; display:flex; justify-content:space-between; align-items:center; padding-bottom:24px; border-bottom:4px solid var(--nhan); }
+  .logo { height:44px; width:auto; max-width:260px; }
+  .dau span { font-size:14px; color:var(--muc-phu); }
+  h1 { position:absolute; left:64px; right:64px; top:180px; font-size:40px; line-height:1.15; font-weight:var(--dam); color:var(--nen); }
+  .phu { position:absolute; left:64px; right:64px; top:300px; font-size:18px; color:var(--muc-phu); }
+  .nd { position:absolute; left:64px; right:64px; top:370px; }
+  h2 { font-size:22px; font-weight:700; color:var(--nen); margin-bottom:10px; }
+  .nd p { font-size:16px; line-height:1.6; margin-bottom:32px; }
+  .chan { position:absolute; left:64px; right:64px; bottom:48px; font-size:14px; color:var(--muc-phu); display:flex; justify-content:space-between; }
+</style></head>
+<body>
+  <div class="dau"><img class="logo" src="{{logo.tren_nen_sang}}" alt="{{ten}}"><span>{{web}}</span></div>
+  <h1>Tiêu đề của tài liệu nằm ở đây, tối đa hai dòng</h1>
+  <p class="phu">Dòng phụ: loại tài liệu · ngày phát hành · người soạn</p>
+  <div class="nd">
+    <h2>Mục thứ nhất</h2>
+    <p>Đoạn văn mẫu. Thay bằng nội dung thật của mục này, giữ câu ngắn, mỗi đoạn một ý để người đọc quét nhanh.</p>
+    <h2>Mục thứ hai</h2>
+    <p>Đoạn văn mẫu. Thay bằng nội dung thật của mục này, giữ câu ngắn, mỗi đoạn một ý để người đọc quét nhanh.</p>
+    <h2>Mục thứ ba</h2>
+    <p>Đoạn văn mẫu. Thay bằng nội dung thật của mục này, giữ câu ngắn, mỗi đoạn một ý để người đọc quét nhanh.</p>
+  </div>
+  <div class="chan"><span>{{ten}}</span><span>Trang 1</span></div>
+<script>document.documentElement.style.zoom = Math.min(1, innerWidth / 794);</script>
+</body></html>

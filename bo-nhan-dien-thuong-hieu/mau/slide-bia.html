@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="kho" content="1920x1080">
+<title>Slide bìa 1920×1080 (nền màu chính)</title>
+<!-- SỬA CHỮ: 3 dòng tiêu đề (h1, dòng 1 màu nhấn), câu phụ (.phu), người trình bày · ngày (.gio), dòng web (.cuoi). Trái chữ, phải hình. -->
+{{font.link}}
+<style>
+  :root{--nen:{{mau.nen}};--chu:{{mau.chu_tren_nen}};--chu-phu:{{mau.chu_phu_tren_nen}};--nhan:{{mau.nhan}};--chu-nhan:{{mau.chu_tren_nhan}};--the:{{mau.the}};--sang:{{mau.nen_sang}};--muc:{{mau.muc}};--muc-phu:{{mau.muc_phu}};--nhan-mo:rgba({{mau.nhan_rgb}},.22);--nut:{{bo_goc.nut}};--card:{{bo_goc.the}};--dam:{{font.dam_tieu_de}};--font:{{font.css}}}
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:var(--nen); }
+  body { font-family:var(--font); color:var(--chu); position:relative; }
+  .glow { position:absolute; left:1060px; top:200px; width:800px; height:800px; border-radius:50%;
+          background:radial-gradient(circle, var(--nhan-mo) 0, transparent 70%); filter:blur(40px); }
+  .hinh { position:absolute; left:1160px; top:290px; width:600px; height:560px; object-fit:contain; }
+  .logo { position:absolute; left:110px; top:84px; height:72px; width:auto; max-width:480px; }
+  h1 { position:absolute; left:110px; top:280px; font-size:112px; white-space:nowrap; font-weight:var(--dam); line-height:1.05; letter-spacing:-.02em; }
+  h1 .m { color:var(--nhan); }
+  .phu { position:absolute; left:110px; top:650px; font-size:44px; color:var(--chu-phu); }
+  .gio { position:absolute; left:110px; top:730px; font-size:44px; font-weight:700; }
+  .gio i { font-style:normal; color:var(--nhan); margin:0 14px; }
+  .cuoi { position:absolute; left:110px; bottom:70px; font-size:36px; font-weight:700; }
+</style></head>
+<body>
+  <!--HINH--><div class="glow"></div>
+  <img class="hinh" src="{{hinh.tep}}" alt=""><!--/HINH-->
+  <img class="logo" src="{{logo.tren_nen}}" alt="{{ten}}">
+  <h1><span class="m">TIÊU ĐỀ DÒNG 1</span><br>TIÊU ĐỀ DÒNG 2<br>TIÊU ĐỀ DÒNG 3</h1>
+  <p class="phu">Một câu phụ giải thích ngắn gọn ý chính</p>
+  <p class="gio">Tên người trình bày <i>·</i> Thứ Năm, 26/11 <i>·</i> Trực tuyến</p>
+  <p class="cuoi">{{web}}</p>
+<script>document.documentElement.style.zoom = Math.min(1, innerWidth / 1920);</script>
+</body></html>

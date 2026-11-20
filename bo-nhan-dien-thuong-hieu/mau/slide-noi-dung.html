@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="kho" content="1920x1080">
+<title>Slide nội dung 1920×1080 (nền sáng)</title>
+<!-- SỬA CHỮ: tiêu đề (h1), 3 ý (.y: dòng đậm b + dòng mô tả span), chân trang (.chan) và số trang (.so). Logo ở góc phải. -->
+{{font.link}}
+<style>
+  :root{--nen:{{mau.nen}};--chu:{{mau.chu_tren_nen}};--chu-phu:{{mau.chu_phu_tren_nen}};--nhan:{{mau.nhan}};--chu-nhan:{{mau.chu_tren_nhan}};--the:{{mau.the}};--sang:{{mau.nen_sang}};--muc:{{mau.muc}};--muc-phu:{{mau.muc_phu}};--nhan-mo:rgba({{mau.nhan_rgb}},.22);--nut:{{bo_goc.nut}};--card:{{bo_goc.the}};--dam:{{font.dam_tieu_de}};--font:{{font.css}}}
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:var(--sang); }
+  body { font-family:var(--font); color:var(--muc); position:relative; }
+  .vach { position:absolute; left:110px; top:90px; width:96px; height:10px; border-radius:5px; background:var(--nhan); }
+  .logo { position:absolute; right:110px; top:70px; height:56px; width:auto; max-width:360px; }
+  h1 { position:absolute; left:110px; top:190px; font-size:72px; font-weight:var(--dam); color:var(--nen); letter-spacing:-.01em; }
+  .ds { position:absolute; left:110px; top:380px; width:1700px; }
+  .y { display:flex; align-items:center; gap:40px; margin-bottom:56px; }
+  .n { flex:none; width:96px; height:96px; border-radius:50%; background:var(--nen); color:var(--chu); font-size:48px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .y b { display:block; font-size:48px; font-weight:700; color:var(--muc); }
+  .y span { display:block; font-size:32px; color:var(--muc-phu); margin-top:6px; }
+  .chan { position:absolute; left:110px; bottom:60px; font-size:32px; font-weight:700; color:var(--nen); }
+  .so { position:absolute; right:110px; bottom:60px; font-size:32px; font-weight:700; color:var(--nen); }
+</style></head>
+<body>
+  <div class="vach"></div>
+  <img class="logo" src="{{logo.tren_nen_sang}}" alt="{{ten}}">
+  <h1>Tiêu đề nội dung của slide</h1>
+  <div class="ds">
+    <div class="y"><div class="n">1</div><div><b>Nội dung ý 1</b><span>Một dòng mô tả ngắn cho ý này</span></div></div>
+    <div class="y"><div class="n">2</div><div><b>Nội dung ý 2</b><span>Một dòng mô tả ngắn cho ý này</span></div></div>
+    <div class="y"><div class="n">3</div><div><b>Nội dung ý 3</b><span>Một dòng mô tả ngắn cho ý này</span></div></div>
+  </div>
+  <div class="chan">{{ten}} | {{web}}</div>
+  <div class="so">1</div>
+<script>document.documentElement.style.zoom = Math.min(1, innerWidth / 1920);</script>
+</body></html>

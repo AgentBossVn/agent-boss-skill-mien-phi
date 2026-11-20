@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="kho" content="1080x1920">
+<title>Story 9:16 (1080×1920)</title>
+<!-- SỬA CHỮ: logo (tự có), 3 dòng tiêu đề (h1, dòng 1 màu nhấn), câu phụ (.phu), dòng giờ · ngày · hình thức (.gio), nút (.nut), dòng web (.cuoi). Chừa 250px trên và dưới (giao diện app che): mọi chữ nằm trong vùng an toàn. -->
+{{font.link}}
+<style>
+  :root{--nen:{{mau.nen}};--chu:{{mau.chu_tren_nen}};--chu-phu:{{mau.chu_phu_tren_nen}};--nhan:{{mau.nhan}};--chu-nhan:{{mau.chu_tren_nhan}};--the:{{mau.the}};--sang:{{mau.nen_sang}};--muc:{{mau.muc}};--muc-phu:{{mau.muc_phu}};--nhan-mo:rgba({{mau.nhan_rgb}},.22);--nut:{{bo_goc.nut}};--card:{{bo_goc.the}};--dam:{{font.dam_tieu_de}};--font:{{font.css}}}
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1080px; height:1920px; overflow:hidden; background:var(--nen); }
+  body { font-family:var(--font); color:var(--chu); position:relative; }
+  .glow { position:absolute; left:140px; top:1000px; width:800px; height:800px; border-radius:50%;
+          background:radial-gradient(circle, var(--nhan-mo) 0, transparent 70%); filter:blur(30px); }
+  .hinh { position:absolute; left:290px; top:1090px; width:500px; height:400px; object-fit:contain; }
+  .vung { position:absolute; left:72px; right:72px; top:250px; bottom:250px; }
+  .logo { height:64px; width:auto; max-width:480px; display:block; }
+  h1 { margin-top:130px; font-size:96px; white-space:nowrap; font-weight:var(--dam); line-height:1.05; letter-spacing:-.02em; }
+  h1 .m { color:var(--nhan); }
+  .phu { margin-top:48px; font-size:40px; line-height:1.3; color:var(--chu-phu); }
+  .gio { margin-top:40px; font-size:40px; font-weight:700; }
+  .gio i { font-style:normal; color:var(--nhan); margin:0 12px; }
+  .nut { position:absolute; left:0; bottom:0; padding:28px 56px; background:var(--nhan); color:var(--chu-nhan); border-radius:var(--nut); font-size:40px; font-weight:700; }
+  .cuoi { position:absolute; right:0; bottom:28px; font-size:36px; font-weight:700; }
+</style></head>
+<body>
+  <!--HINH--><div class="glow"></div>
+  <img class="hinh" src="{{hinh.tep}}" alt=""><!--/HINH-->
+  <div class="vung">
+    <img class="logo" src="{{logo.tren_nen}}" alt="{{ten}}">
+    <h1><span class="m">TIÊU ĐỀ DÒNG 1</span><br>TIÊU ĐỀ DÒNG 2<br>TIÊU ĐỀ DÒNG 3</h1>
+    <p class="phu">Một câu phụ giải thích ngắn gọn ý chính</p>
+    <p class="gio">19:30 <i>·</i> Thứ Năm, 26/11 <i>·</i> Trực tuyến</p>
+    <div class="nut">Đăng ký ngay</div>
+    <p class="cuoi">{{web}}</p>
+  </div>
+<script>document.documentElement.style.zoom = Math.min(1, innerWidth / 1080);</script>
+</body></html>

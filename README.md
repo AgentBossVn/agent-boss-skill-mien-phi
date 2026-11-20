@@ -10,6 +10,7 @@ Hiện tại kho có các skill sau. Bạn thích skill nào thì cài skill đ�
 | `video-phu-de-to` | Video bạn nói chuyện, chia sẻ → cắt chỗ lặng, phụ đề chữ to, nhạc nền, đăng TikTok được ngay |
 | `video-mo-hop-san-pham` | Clip quay sản phẩm → video bán hàng có giọng đọc AI, chữ giá, lời kêu gọi bấm giỏ hàng |
 | `video-ghep-nhac-vlog` | Nhiều clip cảnh đời sống → video ghép cắt đúng nhịp nhạc |
+| `bo-nhan-dien-thuong-hieu` | Dựng bộ nhận diện thương hiệu (màu, chữ, logo, luật dùng) cho AI đọc, rồi làm ấn phẩm đúng thương hiệu. |
 
 Các skill khác mình sẽ thêm dần vào đây.
 
@@ -94,6 +95,52 @@ Cài skill video-phu-de-to từ https://github.com/AgentBossVn/agent-boss-skills
 ```
 
 Rồi nhắn: `Dựng video này đăng TikTok: <đường dẫn video>`. Chỉ dùng nhạc, hình, logo mà bạn có quyền dùng.
+
+## Skill "Bộ nhận diện thương hiệu" làm gì?
+
+Khi bạn nhờ AI làm banner mà không đưa luật thương hiệu, mỗi lần ảnh lại ra một kiểu: màu lệch, font lạ, logo bị vẽ lại. Nhân viên trong công ty cũng dễ làm mỗi người một phong cách.
+
+Mình đã dùng cách làm này cho Agent Boss và SEONGON.
+
+- Lần đầu (cả quá trình mất khoảng 30–60 phút), bạn gửi tên công ty, link web, tệp logo (tốt nhất là SVG hoặc PNG nền trong), brand book nếu có, vài ấn phẩm cũ bạn ưng và vài ấn phẩm bạn ghét.
+
+- Agent sẽ đo màu thật từ logo và web, đo độ dễ đọc của chữ trên nền, rồi đề xuất bộ khung gồm màu nền, màu chữ, màu nhấn theo tỉ lệ 80/15/5, một font có đủ dấu tiếng Việt và tiêu đề 3 dòng. Bạn xem và duyệt bộ khung này.
+
+- Sau khi hoàn thành, bạn có một thư mục gồm:
+  - Luật thương hiệu cho AI đọc (`DESIGN.md`).
+  - Bản ngắn để dán vào ChatGPT hoặc Gemini (`prompt.md`).
+  - Bảng màu cho máy đọc.
+  - Logo.
+  - 7 ấn phẩm mẫu: bài đăng 4:5, story, banner ngang, slide bìa, slide nội dung, tài liệu A4 và chữ ký email.
+  - Một trang guideline mở bằng trình duyệt.
+
+- Những lần sau, bạn chỉ cần nói muốn làm ấn phẩm gì và đưa nội dung. Agent chép mẫu gần nhất, điền chữ, chụp ra ảnh, tự soát màu, cỡ chữ, logo thật, chữ có bị tràn hay không và 3 câu kiểm thương hiệu, rồi mới đưa bạn duyệt.
+
+- Nếu công ty đã có brand book, luật trong brand book được ưu tiên. Agent chỉ chép lại thành dạng AI đọc được, không tự vẽ lại logo, không bịa số liệu hay giải thưởng.
+
+- Bạn cần Claude Code, Codex hoặc Antigravity trên Mac hay Windows; Python có sẵn, không cần cài thêm thư viện; Chrome hoặc Edge để chụp ảnh. Không tốn tiền API.
+
+- Skill video của Agent Boss sẽ tự dùng lại màu và logo trong bộ nhận diện này.
+
+### Cách cài
+
+Nhắn Agent:
+
+```text
+Cài skill bo-nhan-dien-thuong-hieu từ https://github.com/AgentBossVn/agent-boss-skills
+```
+
+### Cách dùng lần đầu
+
+```text
+Dựng bộ nhận diện thương hiệu cho công ty tôi: [tên], web: [link]. Logo ở: [đường dẫn tệp]
+```
+
+### Những lần sau
+
+```text
+Làm bài đăng Facebook đúng thương hiệu: [nội dung]
+```
 
 ## Điều khoản sử dụng
 
