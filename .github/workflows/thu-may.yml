@@ -39,3 +39,5 @@ jobs:
         run: python kiem-thu/chay-thu.py
       - name: Thử skill bộ nhận diện
         run: python kiem-thu/thu-bo-nhan-dien.py
+      - name: Thử skill tiết kiệm token
+        run: python kiem-thu/thu-tiet-kiem-token.py
