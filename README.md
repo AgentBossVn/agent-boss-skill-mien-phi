@@ -11,6 +11,7 @@ Hiện tại kho có các skill sau. Bạn thích skill nào thì cài skill đ�
 | `video-mo-hop-san-pham` | Clip quay sản phẩm → video bán hàng có giọng đọc AI, chữ giá, lời kêu gọi bấm giỏ hàng |
 | `video-ghep-nhac-vlog` | Nhiều clip cảnh đời sống → video ghép cắt đúng nhịp nhạc |
 | `bo-nhan-dien-thuong-hieu` | Dựng bộ nhận diện thương hiệu (màu, chữ, logo, luật dùng) cho AI đọc, rồi làm ấn phẩm đúng thương hiệu. |
+| `tiet-kiem-token` | Soi chỗ tốn token và đề xuất cách giảm dựa trên số liệu của bạn |
 
 Các skill khác mình sẽ thêm dần vào đây.
 
@@ -141,6 +142,79 @@ Dựng bộ nhận diện thương hiệu cho công ty tôi: [tên], web: [link]
 ```text
 Làm bài đăng Facebook đúng thương hiệu: [nội dung]
 ```
+
+## Skill "Tiết kiệm token" làm gì?
+
+Dùng Claude Code hay hết lượt nhanh, hoặc tốn tiền mà không biết tốn ở đâu? Token giống như “xăng” của AI. Tốn xăng không chỉ do chat nhiều, còn do:
+
+- Chọn model và mức suy nghĩ chưa phù hợp.
+- Cuộc trò chuyện quá dài.
+- Kết quả công cụ đổ ra quá nhiều.
+- Giao việc cho trợ lý con.
+- Để máy tự chạy.
+- Bot hoặc web của bạn gọi AI. Phần này là tiền thật, nằm ngoài gói Claude Code.
+
+Skill soi đủ 9 tầng:
+
+- Có cần AI không.
+- Model và mức suy nghĩ.
+- Ngữ cảnh: độ dài cuộc trò chuyện, phần nạp sẵn đầu phiên.
+- Công cụ.
+- Trợ lý con.
+- Cách giao việc.
+- Máy tự chạy.
+- Sản phẩm của bạn gọi AI.
+- Đo và canh.
+
+Khi nhận việc, Agent chạy 3 máy đo ngay trên máy bạn:
+
+- Đọc nhật ký Claude Code trong N ngày gần nhất.
+- Đo phần Claude đọc sẵn trước khi bạn gõ bất kỳ chữ nào.
+- Dò trong thư mục code xem chỗ nào đang gọi AI, của hãng nào, dùng model nào.
+
+Sau đó, Agent làm một báo cáo gồm:
+
+- Bảng 9 tầng, đánh dấu từng tầng là nặng, vừa hay nhẹ.
+- Tối đa 6 đề xuất sửa, xếp việc có lợi lớn và dễ làm lên trước.
+- Mỗi đề xuất có số thật của bạn, lý do gây tốn, việc cần làm và ước bớt được bao nhiêu. Phần ước tính sẽ được ghi rõ là ước.
+- Đề xuất dựa trên tài liệu chính thức của Anthropic.
+- Danh sách những mẹo phổ biến trên mạng nhưng bị thổi phồng, để bạn tránh làm theo.
+
+Một ví dụ dễ hiểu là “AI nhớ tạm” (cache). Thứ AI vừa đọc, khi đọc lại chỉ tính 5–10% giá. Nhưng AI chỉ nhớ trong 1 giờ với gói tháng, hoặc 5 phút khi dùng trợ lý con và khoá API.
+
+Bạn bỏ đi uống cà phê 2 tiếng, quay lại gõ tiếp, AI có thể phải đọc lại cả cuộc trò chuyện với giá đầy đủ. Skill đếm được bạn đã gặp tình huống này bao nhiêu lần.
+
+Bạn cũng có thể yêu cầu Agent xuất phần “chuyện thật có số” để viết bài hoặc dùng khi dạy nhân viên.
+
+Về an toàn và riêng tư:
+
+- Mọi thứ được đo ngay trên máy bạn.
+- 3 máy đo không gửi dữ liệu đi đâu. Agent chỉ đọc bảng số đã đếm, như mọi việc khác bạn làm với Agent.
+- Không cần mạng, không tốn tiền API.
+- Máy dò code bỏ qua các tệp chứa khoá như `.env`.
+- Báo cáo mặc định giấu câu bạn gõ, đường dẫn tệp và tên dự án, nên bạn gửi cho người khác xem được.
+
+Bạn cần:
+
+- Claude Code trên Mac, Windows hoặc Linux.
+- Python 3.8 trở lên.
+- Không cần cài thêm gì.
+
+Phần đọc nhật ký chỉ dành cho Claude Code. Với Codex hoặc Antigravity, bạn chỉ dùng được phần dò code.
+
+Cách cài:
+
+```text
+Cài skill tiet-kiem-token từ https://github.com/AgentBossVn/agent-boss-skills
+```
+
+Cách dùng:
+
+```text
+Kiểm kê token 7 ngày qua của tôi, code của tôi ở thư mục: ...
+```
+
+Sau 1 tuần, bạn nên đo lại để so kết quả trước và sau.
 
 ## Điều khoản sử dụng
 
