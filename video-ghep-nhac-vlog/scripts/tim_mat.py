@@ -15,14 +15,17 @@ def tim_mat(path, rong, cao, dai, buoc=1.0):
     raw = run(['ffmpeg', '-v', 'error', '-i', path, '-vf', f'fps={1 / buoc},scale={tw}:{th}', '-f', 'rawvideo', '-pix_fmt', 'gray', '-'],
               nhi_phan=True).stdout
     loc = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-    ra = []
+    ra, vi = [], tw // 4
     for i in range(len(raw) // (tw * th)):
         k = np.frombuffer(raw, np.uint8, tw * th, i * tw * th).reshape(th, tw)
+        # thêm viền quanh khung: mặt quay cận to tràn khung (selfie, bôi kem) bộ dò mới thấy (đo: 2/24 → 10/24 khung)
+        k = cv2.copyMakeBorder(k, vi, vi, vi, vi, cv2.BORDER_REPLICATE)
         mat = loc.detectMultiScale(k, scaleFactor=1.1, minNeighbors=5, minSize=(tw // 8, tw // 8))
         if len(mat):
             x, y, w, h = max(mat, key=lambda m: m[2] * m[3])
+            x, y = x - vi, y - vi
             # khung của bộ dò dừng ở môi dưới → cộng thêm 25% chiều cao để tới hết cằm
-            ra.append([round(i * buoc + buoc / 2, 2), round(x / tw, 3), round(y / th, 3), round((x + w) / tw, 3), round(min(1, (y + h * 1.25) / th), 3)])
+            ra.append([round(i * buoc + buoc / 2, 2), round(max(0, x / tw), 3), round(max(0, y / th), 3), round(min(1, (x + w) / tw), 3), round(min(1, (y + h * 1.25) / th), 3)])
     return ra
 
 

@@ -544,6 +544,10 @@ for k, c in enumerate(KH.get('chu', [])):
     co_c, vt_c = kieu.get('co', 92), kieu.get('vi_tri', 0.2)
     if PODCAST and c.get('kieu') == 'mo_dau':   # podcast: câu mở đầu nằm ở dải tiêu đề phía trên khung, không đè mặt
         co_c, vt_c = min(co_c, 76), 0.16
+    m = None if PODCAST or not 0.3 <= vt_c <= 0.6 else mat_luc(bd, kt)
+    de = lambda v: m and m[0] - 16 < H * v + co_c * 0.7 and m[1] + 16 > H * v - co_c * 0.7
+    if de(vt_c):   # chữ giữa khung (giá, câu lớn) đè mặt → thử dưới cằm (còn trên phụ đề), không được thì lên trên:
+        vt_c = 0.6 if not de(0.6) else 0.17   # mặt kín khung thì đè trán còn hơn đè mắt mũi miệng
     ve = lambda rieng=None: ve_khoi(toks, co_c, int(H * vt_c), kieu.get('vien', 0 if nen else 8),
                                     (0, 0, 0, 255), nen=nen, xoay=kieu.get('xoay', 0), rieng=rieng)[0]
     if not dan:
