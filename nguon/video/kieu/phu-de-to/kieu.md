@@ -15,8 +15,9 @@ description: Dựng video nói chuyện/chia sẻ (người nói trước camera
 3. **Cắt lặng:** tự động (bỏ khoảng lặng > 0,3 giây). Thêm vào `sua_chu` mọi chữ máy nghe sai, đặc biệt tên riêng và từ tiếng Anh.
 4. **Từ khoá:** chọn 5–10 từ/cụm đắt (con số, kết quả, nỗi đau) cho `tu_khoa`: phụ đề sẽ tô màu nhấn; cụm ≤ 2 chữ có từ khoá hiện to và nghiêng.
 5. **Chữ nhấn giữa video (tuỳ chọn):** kiểu `nhan` cho tiêu đề phụ khi chuyển ý ("BƯỚC 2", "SAI LẦM SỐ 1").
-6. **Nhạc:** nhẹ, nằm dưới giọng nói. Không có nhạc thì để trống, vẫn ổn.
-7. **Thẻ kết:** bật (`"the_ket": true`) — tên kênh + câu kêu gọi từ hồ sơ thương hiệu.
+6. **Ảnh minh hoạ chèn xen:** video chỉ có mặt người nói từ đầu tới cuối rất dễ bị lướt qua. Mỗi 10–20 giây chèn 1 ảnh (`chen_anh`) minh hoạ đúng chuyện đang kể, 3–7 giây mỗi ảnh. Không có ảnh thì hỏi người dùng có muốn tạo không, đừng tự bịa ảnh không khớp lời.
+7. **Nhạc:** nhẹ, lót suốt video dưới giọng nói. Nên có: video chỉ có giọng nói nghe trống. Người dùng không đưa nhạc thì skill tự tạo nhạc nền (không bản quyền); không muốn nhạc thì `"nhac": false`.
+8. **Thẻ kết:** bật (`"the_ket": true`) — tên kênh + câu kêu gọi từ hồ sơ thương hiệu.
 
 ## Kiểu chữ có trong skill này
 
@@ -25,3 +26,9 @@ description: Dựng video nói chuyện/chia sẻ (người nói trước camera
 | `mo_dau` | Câu mở đầu 3 giây đầu | Trên cao, chữ trắng viền đen |
 | `nhan` | Tiêu đề chuyển ý | Trên cao, nền màu nhấn |
 
+
+## Khoá tuỳ chọn trong kế hoạch (làm video bớt "nhạt")
+- Chữ `mo_dau` tự hiện từng chữ một (chữ trong `tu_khoa` tô màu nhấn và bật nảy); `"hien_dan": false` để tắt.
+- `"khung_tv": true` trên một `doan` (thường đoạn trích trước): đoạn đó nằm trong khung TV cũ, viền dày, vạch quét.
+- `"phat_sang": ["ĐẶT TRƯỚC", "15%"]` (tối đa 2 cụm): phụ đề chứa cụm đó có quầng sáng + sao lấp lánh.
+- Video NGANG (podcast/Zoom): `"bo_cuc": "podcast"`, `"tieu_de_co_dinh": ["DÒNG 1 (trắng)", "DÒNG 2 (màu nhấn)"]`, `"the_ten": "Tên người nói"` (thẻ tên 3 giây đầu). Phụ đề nhỏ nằm dưới khung video. Khung mặc định cắt giữa cho mặt to; video 2 người ngồi hai bên thì thêm `"giu_ngang": true` để giữ nguyên khung ngang. Câu mở đầu nằm ở dải tiêu đề, tiêu đề cố định hiện sau khi câu mở đầu hết.

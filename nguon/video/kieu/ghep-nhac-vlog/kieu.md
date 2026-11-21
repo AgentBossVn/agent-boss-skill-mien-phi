@@ -22,3 +22,6 @@ description: Ghép các clip đời sống, du lịch, ăn uống, một ngày l
 | `mo_dau` | Tiêu đề | Giữa khung, chữ to |
 | `dan_chuyen` | Câu dẫn chuyện | Dưới, chữ nhỏ |
 
+
+## Tự động theo preset
+- Mỗi cảnh mở đầu bằng cú phóng nhẹ, cứ cảnh thứ 4 loé trắng 2 khung; `"mau_sac": "am"` trong preset = tông màu ấm nhẹ (bỏ dòng đó nếu muốn màu gốc).

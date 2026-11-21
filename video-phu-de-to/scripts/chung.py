@@ -10,14 +10,24 @@ for _s in (sys.stdout, sys.stderr):   # Windows: in tiếng Việt không bị v
 W, H, FPS = 1080, 1920, 30
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # thư mục skill (chứa SKILL.md)
 NHA = os.path.expanduser(os.environ.get('AGENT_BOSS_HOME', '~/.agent-boss'))  # dữ liệu riêng của người dùng (dùng chung mọi skill Agent Boss), cập nhật không đụng tới
+# Python riêng của skill (kiem_tra.py --cai tạo): thư viện cài vào đây, không đụng Python của máy
+PY_RIENG_DIR = os.path.join(NHA, 'python')
+PY_RIENG = os.path.join(PY_RIENG_DIR, 'Scripts', 'python.exe') if sys.platform == 'win32' else os.path.join(PY_RIENG_DIR, 'bin', 'python3')
+
+# Đã có Python riêng mà đang chạy bằng Python của máy → chạy lại bằng Python riêng (người dùng gõ python3 nào cũng được)
+if os.path.exists(PY_RIENG) and os.path.realpath(sys.prefix) != os.path.realpath(PY_RIENG_DIR) and not os.environ.get('AGENT_BOSS_DA_DOI_PY'):
+    os.environ['AGENT_BOSS_DA_DOI_PY'] = '1'
+    sys.exit(subprocess.run([PY_RIENG, os.path.abspath(sys.argv[0]), *sys.argv[1:]]).returncode)
 ENC = ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '17', '-r', str(FPS), '-pix_fmt', 'yuv420p']
 AENC = ['-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-ac', '2']
 
 
-def run(cmd):
-    r = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
+def run(cmd, nhi_phan=False, du_lieu=None):
+    nhi_phan = nhi_phan or du_lieu is not None   # du_lieu: bytes đưa vào stdin của lệnh
+    r = subprocess.run(cmd, input=du_lieu, capture_output=True) if nhi_phan else subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
     if r.returncode != 0:
-        raise SystemExit(f'Lỗi khi chạy: {" ".join(cmd[:6])}...\n{r.stderr[-1500:]}')
+        loi = r.stderr.decode('utf-8', 'replace') if nhi_phan else r.stderr
+        raise SystemExit(f'Lỗi khi chạy: {" ".join(cmd[:6])}...\n{loi[-1500:]}')
     return r
 
 

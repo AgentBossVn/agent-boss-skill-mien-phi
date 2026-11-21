@@ -11,6 +11,6 @@
     "nhan": {"vi_tri": 0.17, "co": 70, "nen": "chinh", "mau": "nhan"},
     "cta": {"vi_tri": 0.6, "co": 74, "nen": "nhan", "mau": "chinh"}
   },
-  "nhac": {"am_luong": 0.14, "khi_khong_loi": 0.7},
+  "nhac": {"am_luong": 0.14, "khi_khong_loi": 0.7, "tu_tao": true, "loai": "ban-hang"},
   "the_ket_giay": 2.5
 }

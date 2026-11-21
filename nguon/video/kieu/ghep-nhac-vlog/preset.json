@@ -5,6 +5,8 @@
   "doi_khung_giay": 0,
   "giu_tieng_goc": false,
   "khop_nhip": true,
+  "nhan_canh": true,
+  "mau_sac": "am",
   "canh_ngan_nhat": 0.8,
   "canh_dai_nhat": 2.6,
   "phu_de": {"bat": false},
@@ -12,6 +14,6 @@
     "mo_dau": {"vi_tri": 0.42, "co": 96, "mau": "chu", "vien": 6},
     "dan_chuyen": {"vi_tri": 0.75, "co": 58, "mau": "chu", "vien": 5}
   },
-  "nhac": {"am_luong": 0.2, "khi_khong_loi": 0.85},
+  "nhac": {"am_luong": 0.2, "khi_khong_loi": 0.85, "tu_tao": true, "loai": "vlog"},
   "the_ket_giay": 0
 }
