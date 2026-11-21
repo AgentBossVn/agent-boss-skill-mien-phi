@@ -72,6 +72,13 @@ Nếu là sản phẩm của chính bạn và trên mạng chưa có ảnh, Agen
 
 Ảnh sản phẩm sẽ được gửi sang dịch vụ vẽ mà bạn chọn, vì vậy bạn đừng đưa những sản phẩm chưa công bố vào làm. Nếu có dùng khoá API, bạn nhập vào ô kín do Agent mở ra, tuyệt đối không dán thẳng vào khung chat.
 
+## Ca thật đứng sau skill ảnh
+
+Skill ảnh quảng cáo ra đời từ ca một học viên bán xe điện: Agent làm ảnh xấu, thầy giao lại việc theo kiểu làm sếp và có 9 ảnh đúng xe. Xem slide để thấy cách giao việc mới quyết định ảnh đẹp hay xấu, công cụ chỉ là phần sau.
+
+- [Xem trọn ca làm ảnh](https://agentboss.vn/thu-vien/slide/tu-duy-dung-agent)
+- [Học Agent Boss Marketing](https://muachung.agentboss.vn/marketing): mua chung 890.000đ, cọc 100.000đ giữ chỗ.
+
 ## Các skill video làm gì?
 
 Bạn đưa video thô vào (video tự quay đang nói, clip sản phẩm, clip cảnh đời sống), Agent dựng ra video dọc 9:16 đăng TikTok, Reels, Shorts được ngay, kèm ảnh bìa và chú thích có hashtag. Mỗi skill là một kiểu dựng khác nhau.
