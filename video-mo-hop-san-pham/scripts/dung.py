@@ -14,8 +14,8 @@
 #   "phat_sang": ["ĐẶT TRƯỚC"] (tối đa 2 cụm: phụ đề chứa cụm đó có quầng sáng + sao) ·
 #   "bo_cuc": "podcast" + "tieu_de_co_dinh": ["DÒNG 1", "DÒNG 2"] + "the_ten": "Tên" (video ngang, hoặc preset "khung": "podcast")
 # }
-import asyncio, json, os, random, re, shutil, sys
-from chung import W, H, FPS, ENC, AENC, run, duong_ff, doc_json, ghi_json, thong_tin, preset, thuong_hieu, mau, tim_font, log  # nạp trước: tự đổi sang Python riêng
+import asyncio, glob, json, os, random, re, shutil, sys
+from chung import W, H, FPS, ENC, AENC, NHA, run, duong_ff, doc_json, ghi_json, thong_tin, preset, thuong_hieu, mau, tim_font, log  # nạp trước: tự đổi sang Python riêng
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from phan_tich import cho_lang
@@ -129,6 +129,15 @@ NHAC = None if KH.get('nhac') is False else (duong(KH['nhac']) if KH.get('nhac')
 if NHAC and not os.path.exists(NHAC):
     log(f'Không thấy file nhạc {NHAC} → dựng không nhạc')
     NHAC = None
+LOAI_NHAC = P.get('nhac', {}).get('loai')
+KHO_NHAC = sorted(glob.glob(os.path.join(NHA, 'nhac', f'{LOAI_NHAC}-*.*'))) if LOAI_NHAC else []
+if not NHAC and KH.get('nhac') is not False and KHO_NHAC:
+    # kho nhạc riêng của người dùng (~/.agent-boss/nhac/<loại>-*.mp3): mỗi video chọn 1 bản theo tên, bỏ khoảng lặng 2 đầu cho vòng lặp liền
+    chon = random.Random(os.path.basename(GOC)).choice(KHO_NHAC)
+    NHAC = os.path.join(TMP, 'nhac-kho.wav')
+    cat = 'silenceremove=start_periods=1:start_threshold=-45dB'
+    run(['ffmpeg', '-y', '-v', 'error', '-i', chon, '-af', f'{cat},areverse,{cat},areverse', NHAC])
+    log(f'Nhạc nền từ kho riêng: {os.path.basename(chon)}')
 if not NHAC and KH.get('nhac') is not False and P.get('nhac', {}).get('tu_tao'):
     # không có nhạc riêng → tự tạo nhạc nền (không bản quyền); "nhac": false trong kế hoạch = không lót nhạc
     NHAC = tao_nhac(300, os.path.join(TMP, 'nhac-tu-tao.wav'), os.path.basename(GOC))

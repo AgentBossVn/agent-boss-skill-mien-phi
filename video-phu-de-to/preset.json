@@ -11,6 +11,6 @@
     "mo_dau": {"vi_tri": 0.2, "co": 88, "mau": "chu", "vien": 9},
     "nhan": {"vi_tri": 0.2, "co": 72, "nen": "nhan", "mau": "chinh"}
   },
-  "nhac": {"am_luong": 0.16, "khi_khong_loi": 0.6, "tu_tao": true},
+  "nhac": {"am_luong": 0.16, "khi_khong_loi": 0.6, "tu_tao": true, "loai": "noi"},
   "the_ket_giay": 2.5
 }
